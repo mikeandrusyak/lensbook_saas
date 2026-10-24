@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+coverage/
+*.log
+.DS_Store
+
+# Secrets: only .env.example is tracked
+.env
+.env.*
+!.env.example
