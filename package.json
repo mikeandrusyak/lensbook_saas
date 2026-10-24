@@ -1,17 +1,30 @@
 {
   "devDependencies": {
-    "supabase": "^2.122.0"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.3",
+    "supabase": "^2.122.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
   },
   "name": "lensbook_saas",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "eciesjs": "^0.5.0",
-    "jose": "^6.2.13"
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -20,7 +33,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/mikeandrusyak/lensbook_saas/issues"
   },
