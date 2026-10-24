@@ -1,4 +1,4 @@
-# KIP project: CRM for wedding photographers
+# KIP project: CRM for photographers
 
 Learning project (FHNW KIP module). The owner must understand and be able to
 explain every line orally, so work in small steps.
