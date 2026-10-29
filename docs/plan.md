@@ -164,7 +164,7 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 | Step | Content | Status |
 | --- | --- | --- |
 | 1.1 | Next.js skeleton: Next, React, TypeScript, Tailwind, ESLint, configs and `app/` | ✅ Done 24.10.2026 |
-| 1.2 | Vitest, `typecheck` and `test` scripts | ⬜ |
+| 1.2 | Vitest, `typecheck` and `test` scripts | ✅ Done 29.10.2026 |
 | 1.3 | shadcn/ui | ⬜ |
 | 1.4 | GitHub Actions (lint, typecheck, tests, `npm audit`, OSV-Scanner, gitleaks), Dependabot; database tests not run in CI | ⬜ |
 | 1.5 | Invite the lecturer to the repo, `README.md` stub | ⬜ |
@@ -176,6 +176,10 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 - Removed from `package.json`: `"type": "commonjs"` (from `npm init -y`, it broke the Turbopack build) and the direct entries `eciesjs` and `jose` (we do not use them in the project; they remain as transitive dev dependencies of the Supabase CLI).
 - The dev server also listens on the VM's network interface; later run `next dev -H localhost`.
 - Entry in `docs/protocol.md`: step 1.1. The initial scan baseline for the report is taken from the first CI run (step 1.4).
+**Step 1.2: done (29.10.2026).** `vitest@5.0.5` and `vite@^7` (7.3.7, not 8.x, which was 7 days old); `npm run test`, `typecheck`, `lint` and `build` pass, `npm audit` and OSV-Scanner report no problems (519 packages in the lockfile). Notes:
+- New install scripts in the tree: `esbuild` (via Vite 7), not approved and not needed; `fsevents` is optional and was not installed.
+- `lib/sanity.test.ts` is a placeholder that proves the pipeline works; remove it once the first real test exists (Phase 2).
+- Entry in `docs/protocol.md`: step 1.2. The field "What I checked and understood" is left for you to fill in.
 - **Done when:** all five steps are closed, CI is green on `main`, the initial scan report is saved (CI artifact), the lecturer is added to the repo.
 ### Phase 2. DB schema and RLS (Must 1, 3)
  
