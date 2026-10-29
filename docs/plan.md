@@ -165,7 +165,7 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 | --- | --- | --- |
 | 1.1 | Next.js skeleton: Next, React, TypeScript, Tailwind, ESLint, configs and `app/` | ✅ Done 24.10.2026 |
 | 1.2 | Vitest, `typecheck` and `test` scripts | ✅ Done 29.10.2026 |
-| 1.3 | shadcn/ui | ⬜ |
+| 1.3 | shadcn/ui | ✅ Done 29.10.2026 |
 | 1.4 | GitHub Actions (lint, typecheck, tests, `npm audit`, OSV-Scanner, gitleaks), Dependabot; database tests not run in CI | ⬜ |
 | 1.5 | Invite the lecturer to the repo, `README.md` stub | ⬜ |
  
@@ -180,6 +180,11 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 - New install scripts in the tree: `esbuild` (via Vite 7), not approved and not needed; `fsevents` is optional and was not installed.
 - `lib/sanity.test.ts` is a placeholder that proves the pipeline works; remove it once the first real test exists (Phase 2).
 - Entry in `docs/protocol.md`: step 1.2. The field "What I checked and understood" is left for you to fill in.
+**Step 1.3: done (29.10.2026).** Manual shadcn setup, `npx shadcn init` was not used (about 40 dependencies, network access). `test`, `typecheck`, `lint` and `build` pass, `npm audit` and OSV-Scanner report no problems (523 packages in the lockfile). Notes:
+- New packages (no install scripts): `clsx@2.1.1`, `tailwind-merge@3.7.0`, `class-variance-authority@0.7.1`, `tw-animate-css@1.4.0` (dev). Not installed yet: `lucide-react`, `radix-ui` (add with their own check when a component needs them).
+- Files: `lib/utils.ts` (`cn`, with a test), `components.json`, theme tokens in `app/globals.css`, `components/ui/button.tsx` (no `asChild`).
+- **TODO, do not forget: the colors in `app/globals.css` (`--primary`, `--accent`) are temporary and were picked only to make hover visible. Replace them in the design step below.** `app/page.tsx` also still shows demo buttons; replace it with the real start page.
+- Entry in `docs/protocol.md`: step 1.3. The field "What I checked and understood" is left for you to fill in.
 - **Done when:** all five steps are closed, CI is green on `main`, the initial scan report is saved (CI artifact), the lecturer is added to the repo.
 ### Phase 2. DB schema and RLS (Must 1, 3)
  
@@ -188,6 +193,18 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 - pgTAP: photographer A cannot see, change or delete B's rows; a foreign `client_id` is rejected; a status jump is rejected; `anon` reads no table.
 - **Done when:** tests are green; I can explain every policy in my own words; Security Advisor has no critical warnings.
 - **For the protocol:** the most important phase for LE3: where the agent made a mistake or a test revealed a problem.
+### Design step (between Phase 2 and Phase 3, before the first real screens)
+ 
+Not a Must; kept small so the UI does not get a random look. Do it before the login form, which is the first real screen.
+ 
+- Mood: minimalism and warmth. One style for the whole app; the couple's page `/book/[token]` gets more whitespace and the accent, the photographer's pages stay calm and businesslike.
+- Palette: warm graphite base, sand as accent background, one clear color for links and focus. Write the choice and the reason in 10–15 lines in this section.
+- **Replace the temporary colors in `app/globals.css`** (`--primary`, `--accent`, `--accent-foreground`) with the chosen palette; add tokens only when a component needs them.
+- Five status colors for the badges (`Inquiry` … `Gallery Delivered`), chosen together with the palette. Check contrast of text on badges.
+- Typography: one typeface, via `next/font` or the system font; no new package.
+- Replace the demo buttons in `app/page.tsx`.
+- Dark theme stays out of scope.
+- **Done when:** the palette and status colors are described here and applied in `app/globals.css`, no temporary colors are left.
 ### Phase 3. Authentication (Must 4)
  
 - Supabase Auth (email + password), `@supabase/ssr`, middleware, logout.

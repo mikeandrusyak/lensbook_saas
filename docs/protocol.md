@@ -38,3 +38,15 @@
 - **What I fixed or rejected:** Pinned Vite to 7 instead of the 8.3.5 npm would pick (released 7 days earlier, same reasoning as TypeScript 7 in step 1.1). Install scripts of `esbuild` (and `unrs-resolver`) were not approved with `npm install-scripts approve`; Vitest works without them because the esbuild binary comes as the separate `@esbuild/darwin-arm64` package.
 - **Security:** `npm audit` 0 vulnerabilities; OSV-Scanner: no issues (519 packages); packages with install scripts: `unrs-resolver`, `esbuild` (both not run); `fsevents` was not installed (optional, macOS).
 - **Requirement changes:** None.
+
+---
+
+## Step 1.3: shadcn/ui foundation (manual setup)
+
+- **Scenario and requirements:** Security (supply chain): the `shadcn` CLI has about 40 dependencies and fetches from the network, so I avoided it. Know-how: I must be able to explain `cn()`, the theme tokens and the Button variants.
+- **Prompts:** Plan mode; asked for a plan; agent gave package facts first (name, author, update date, install scripts); approved the plan; then approved the install after a dry-run; went file by file with "go".
+- **What the agent did:** Checked the registry for `shadcn`, `clsx`, `tailwind-merge`, `class-variance-authority`, `tw-animate-css`; installed the last four (no install scripts); wrote `lib/utils.test.ts` first (red), then `lib/utils.ts` (green); added `components.json`, theme tokens in `app/globals.css`, `components/ui/button.tsx` and a demo in `app/page.tsx`.
+- **What I checked and understood:** _(to be filled in by me: what `cn()` does and why `twMerge` is needed, what `cva` variants are, how `@theme inline` turns variables into Tailwind classes)_
+- **What I fixed or rejected:** Rejected `npx shadcn init` (large dependency tree, network access, many files at once). Left out `lucide-react`, `radix-ui` and `asChild` until a component needs them. Dropped `@custom-variant dark` (no dark theme in scope). After a visual check I found the hover effect too weak; `--accent` was darkened (0.97 to 0.91) and the hover opacity of `default` and `destructive` was lowered.
+- **Security:** `npm audit` 0 vulnerabilities; OSV-Scanner: no issues (523 packages); lockfile gained only the 4 packages, no new install scripts; `esbuild`, `unrs-resolver` still not approved; `fsevents` not installed.
+- **Requirement changes:** None.
