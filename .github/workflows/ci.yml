@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# The workflow token may only read the repository.
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions are pinned to a commit SHA, not a tag (tags can be moved).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      # npm ci installs exactly what package-lock.json says.
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Reads package-lock.json only, so no install is needed.
+      # Fails the job on high or critical vulnerabilities.
+      - run: npm audit --audit-level=high
+
+  osv-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The binary is downloaded from the official release and checked against
+      # a pinned SHA-256 (osv-scanner v2.7.0, osv-scanner_linux_amd64).
+      # If the hash does not match, the job fails before the binary runs.
+      - name: Install osv-scanner
+        run: |
+          curl -fsSL -o osv-scanner https://github.com/google/osv-scanner/releases/download/v2.7.0/osv-scanner_linux_amd64
+          echo "160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b  osv-scanner" | sha256sum -c -
+          chmod +x osv-scanner
+
+      # Exits with a non-zero code if vulnerabilities are found.
+      - name: Scan package-lock.json
+        run: ./osv-scanner scan source --lockfile package-lock.json --format json --output-file osv-report.json
+
+      # if: always() keeps the report even when the scan step fails.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: osv-report
+          path: osv-report.json
+
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 downloads the full history, so old commits are scanned too.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Pinned SHA-256 of gitleaks_8.30.1_linux_x64.tar.gz; the job fails on mismatch.
+      - name: Install gitleaks
+        run: |
+          curl -fsSL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+
+      # --redact keeps found secrets out of the CI log. Exits 1 if a leak is found.
+      - name: Scan git history
+        run: ./gitleaks git --redact --no-banner .

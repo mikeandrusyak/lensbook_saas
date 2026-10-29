@@ -1,0 +1,21 @@
+version: 2
+
+updates:
+  # npm packages (package.json + package-lock.json)
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Do not propose versions younger than 7 days (same rule as steps 1.1 and 1.2).
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+
+  # Actions in .github/workflows (pinned by SHA, Dependabot updates the SHA and the comment)
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
