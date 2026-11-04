@@ -88,9 +88,11 @@ Structure from the Mini-Challenge v1.1 PDF. Draft with the contents of this plan
 ```bash
 npx supabase migration new <name>   # empty file in supabase/migrations
 # write the SQL by hand and read every policy
-npx supabase db push                 # apply to the dev project
-npx supabase test db --linked        # pgTAP (check the flag via --help)
+npx supabase db push --linked        # apply to the dev project (no Docker needed)
+# pgTAP: paste supabase/tests/<name>.test.sql into the Dashboard SQL Editor and run it
 ```
+ 
+`npx supabase test db --linked` does not work here: it starts `pg_prove` in a Docker container (error `docker: command not found`, found in step 2.1). The SQL Editor shows only the last result set, so each test file collects its assertions in a temp table `pg_temp.results` and prints it at the end; choose "Run without RLS" in the dialog (the table is temporary and rolled back). Do not choose "Run and enable RLS": the editor then runs `alter table` in a separate statement and fails with `relation "results" does not exist`.
  
 Write pgTAP tests in a `begin; ... rollback;` block so they leave no data behind. Run the database tests manually from the VM, not in CI: otherwise the Supabase token would have to be put into GitHub Secrets.
  
@@ -188,6 +190,19 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 - **Done when:** all five steps are closed, CI is green on `main`, the initial scan report is saved (CI artifact), the lecturer is added to the repo.
 ### Phase 2. DB schema and RLS (Must 1, 3)
  
+| Step | Content | Status |
+| --- | --- | --- |
+| 2.1 | `profiles` + RLS + pgTAP test | ✅ Done 04.11.2026 |
+| 2.2 | enum `project_status` + `clients` + RLS + tests | ⬜ |
+| 2.3 | `projects` + RLS + same-photographer check for `client_id` + tests | ⬜ |
+| 2.4 | status trigger (one step forward/back, `gallery_url` required) + tests | ⬜ |
+| 2.5 | `packages` + `contracts` + RLS + tests | ⬜ |
+| 2.6 | seed trigger on signup (profile + 3 packages) | ⬜ |
+| 2.7 | `anon` privilege test, Security Advisor review, protocol entry | ⬜ |
+ 
+**Step 2.1: done (04.11.2026).** Files: `supabase/tests/profiles_rls.test.sql` (7 checks, written first and run red), `supabase/migrations/20261104090000_create_profiles.sql` (applied with `db push --linked`, then green in the SQL Editor). Policies for `authenticated` on select, insert, update with `id = (select auth.uid())`; no delete policy; `anon` has no privileges. No new packages.
+ 
+General Phase 2 content:
 - Migrations by hand: tables, enum, foreign keys, index on `event_date`.
 - RLS policies, status trigger, seed trigger (profile + 3 packages).
 - pgTAP: photographer A cannot see, change or delete B's rows; a foreign `client_id` is rejected; a status jump is rejected; `anon` reads no table.
@@ -305,7 +320,7 @@ If the delay exceeds 3 days, we first simplify the UI styling. Must features are
 - Check `sysctl kern.hv_support` in the macOS VM (confirm that Docker is really unavailable) and note the result in the protocol.
 - Is a cloud dev project instead of a local database acceptable to the lecturer (tell them in the exposé).
 - Whether app deployment is needed for submission, or local run and a demo recording are enough.
-- Verify the `supabase test db --linked` command and the rule syntax in `settings.json` against current documentation or `--help` before use.
+- Verify the rule syntax in `settings.json` against current documentation or `--help` before use. (`supabase test db --linked` was checked in step 2.1: it needs Docker, see "Migration workflow".)
 ## Protocol for the report and exam preparation
  
 The report assesses the process, not the code, so we keep the protocol from day one. One entry per step:

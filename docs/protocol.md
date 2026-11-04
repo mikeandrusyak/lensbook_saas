@@ -43,3 +43,20 @@
 - **What I fixed or rejected:** Rejected `npx shadcn init` (large dependency tree, network access, many files at once). Left out `lucide-react`, `radix-ui` and `asChild` until a component needs them. Dropped `@custom-variant dark` (no dark theme in scope). After a visual check I found the hover effect too weak; `--accent` was darkened (0.97 to 0.91) and the hover opacity of `default` and `destructive` was lowered.
 - **Security:** `npm audit` 0 vulnerabilities; OSV-Scanner: no issues (523 packages); lockfile gained only the 4 packages, no new install scripts; `esbuild`, `unrs-resolver` still not approved; `fsevents` not installed.
 - **Requirement changes:** None.
+
+---
+
+## Step 2.1: `profiles` table with RLS
+
+- **Scenario and requirements:** Security (data isolation): the `profiles` table is the base for every `auth.uid()` policy, and the database is reachable from the internet, so RLS is the only barrier. Know-how: pgTAP and RLS are new to me; I must be able to explain every policy line.
+- **Prompts:** Plan mode; asked what Phase 2 contains; approved a 7-step breakdown and the detailed plan for 2.1 (test first); approved each command that touches the cloud DEV project.
+- **What the agent did:** Wrote `supabase/tests/profiles_rls.test.sql` (7 checks) and ran it red (table missing); wrote the migration `create_profiles` (table, RLS in the same migration, `revoke` from `anon`, select/insert/update policies, no delete policy); applied it with `db push --linked`; the test was green in the SQL Editor. Updated `CLAUDE.md` and `docs/plan.md` with the real test workflow.
+- **What I fixed or rejected:**
+  - `supabase test db --linked` fails with `docker: command not found` (it runs `pg_prove` in a container). The plan assumed it works; I chose to run pgTAP by hand in the SQL Editor instead of installing Docker/Podman or new tools.
+  - First test version used `with u as (update ...)` inside a subquery: Postgres rejects data-modifying CTEs below the top level. Rewrote tests 5–7 as a plain `update` plus a separate check.
+  - The SQL Editor shows only the last result set, so a passing run looked empty. Added a temp table `pg_temp.results` that collects all assertions and prints them at the end.
+  - The editor's "Potential issue detected" dialog (temp table without RLS): chose "Run without RLS", because the table is temporary and rolled back. Earlier error `relation "results" does not exist` was probably the editor running `alter table` in a separate statement (hypothesis, not proven).
+  - An agent edit dropped a space (`pg_temp.resultsselect`); caught when I pasted the file, fixed and checked with grep.
+  - Network: `db push`/`test db` timed out from the first network (pooler port blocked or timing out); worked from a phone hotspot. Dashboard showed no network bans or restrictions; the exact cause in the first network was not identified.
+- **Security:** RLS enabled in the same migration before any row exists; `anon` has no privileges (tested); A cannot read, update or insert B's profile (tested, `42501` for the forged insert); only fictional data (`*@example.test`), tests end with `rollback`; no service_role key, no `.env*` read; no new packages. Security Advisor review is planned for step 2.7.
+- **Requirement changes:** pgTAP is run manually in the SQL Editor, not with `supabase test db --linked`; recorded in `CLAUDE.md` and `docs/plan.md` (Migration workflow, Phase 2 table).

@@ -6,7 +6,9 @@ explain every line orally, so work in small steps.
 ## Stack
 Next.js (App Router) + TypeScript + Tailwind + shadcn/ui.
 Supabase cloud DEV project (Postgres + Auth + RLS). No Docker, no local Supabase.
-Tests: pgTAP (`npx supabase test db --linked`) for RLS, Vitest for logic.
+Tests: pgTAP for RLS, Vitest for logic. `supabase test db` needs Docker, so pgTAP files
+in `supabase/tests/` are run by hand in the Supabase Dashboard SQL Editor (choose "Run without RLS"
+for the temp `results` table). Migrations: `npx supabase db push --linked` (no Docker needed).
 
 ## Working rules
 - Always start in plan mode: describe the step, expected result and tests, then wait for approval.
