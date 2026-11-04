@@ -1,0 +1,9 @@
+# minimatch DoS (medium, CVSS 6.9). Dev-only: it is pulled in by ESLint and
+# typescript-eslint and never ships in the production build. No compatible fix
+# exists: the fix is minimatch 11.0.1, but ESLint 9 and eslint-plugin-react /
+# import / jsx-a11y need ^3, and typescript-estree needs ^10.
+# Re-check when the ignore expires.
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2027-01-03
+reason = "Dev-only transitive dependency of ESLint; no compatible fixed version available"
