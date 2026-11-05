@@ -193,7 +193,7 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 | Step | Content | Status |
 | --- | --- | --- |
 | 2.1 | `profiles` + RLS + pgTAP test | ✅ Done 04.11.2026 |
-| 2.2 | enum `project_status` + `clients` + RLS + tests | ⬜ |
+| 2.2 | enum `project_status` + `clients` + RLS + tests | 🟡 SQL written, waiting for `db push` + SQL Editor run |
 | 2.3 | `projects` + RLS + same-photographer check for `client_id` + tests | ⬜ |
 | 2.4 | status trigger (one step forward/back, `gallery_url` required) + tests | ⬜ |
 | 2.5 | `packages` + `contracts` + RLS + tests | ⬜ |
