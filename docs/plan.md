@@ -197,7 +197,7 @@ Rule for new packages: exact spelling of the name (typosquatting, letters from a
 | 2.3 | `projects` + RLS + same-photographer check for `client_id` + tests | 🟡 SQL written, waiting for `db push` + SQL Editor run |
 | 2.4 | status trigger (one step forward/back, `gallery_url` required) + tests | 🟡 SQL written, waiting for `db push` + SQL Editor run |
 | 2.5 | `packages` + `contracts` + RLS + tests | 🟡 SQL written, waiting for `db push` + SQL Editor run |
-| 2.6 | seed trigger on signup (profile + 3 packages) | ⬜ |
+| 2.6 | seed trigger on signup (profile + 3 packages) | 🟡 SQL written, waiting for `db push` + SQL Editor run |
 | 2.7 | `anon` privilege test, Security Advisor review, protocol entry | ⬜ |
  
 **Step 2.1: done (04.11.2026).** Files: `supabase/tests/profiles_rls.test.sql` (7 checks, written first and run red), `supabase/migrations/20261104090000_create_profiles.sql` (applied with `db push --linked`, then green in the SQL Editor). Policies for `authenticated` on select, insert, update with `id = (select auth.uid())`; no delete policy; `anon` has no privileges. No new packages.

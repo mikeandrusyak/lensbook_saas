@@ -11,9 +11,11 @@ insert into auth.users (id, aud, role, email) values
   ('00000000-0000-0000-0000-00000000000a', 'authenticated', 'authenticated', 'a@example.test'),
   ('00000000-0000-0000-0000-00000000000b', 'authenticated', 'authenticated', 'b@example.test');
 
+-- Since step 2.6 the sign-up trigger already created the profiles, so only set the name.
 insert into public.profiles (id, display_name) values
   ('00000000-0000-0000-0000-00000000000a', 'Photographer A'),
-  ('00000000-0000-0000-0000-00000000000b', 'Photographer B');
+  ('00000000-0000-0000-0000-00000000000b', 'Photographer B')
+on conflict (id) do update set display_name = excluded.display_name;
 
 -- One package per photographer. Runs as the table owner, so RLS does not apply.
 insert into public.packages (id, photographer_id, name, description, price, duration_hours) values
@@ -44,11 +46,12 @@ insert into pg_temp.results select ok(
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub": "00000000-0000-0000-0000-00000000000a"}', true);
 
--- 4. A sees exactly one package
+-- 4. Every package A sees is their own (A also has the 3 starter packages from step 2.6)
 insert into pg_temp.results select is(
-  (select count(*) from public.packages),
-  1::bigint,
-  'A sees exactly one package'
+  (select count(*) from public.packages
+   where photographer_id <> '00000000-0000-0000-0000-00000000000a'),
+  0::bigint,
+  'A sees only their own packages'
 );
 
 -- 5. That package is not B's
