@@ -10,6 +10,20 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 5
+    # Major versions we stay on for now (reviewed 11.11.2026). Minor and patch
+    # updates, including security fixes, still come in. Remove an entry when its
+    # reason is gone.
+    ignore:
+      # Runtime is Node 24 (CI, local); types must match the runtime major.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # eslint 10: the plugins bundled by eslint-config-next 16 (react, import,
+      # jsx-a11y) declare support only up to eslint 9.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      # typescript 7: the CI checks job failed on it (Dependabot PR #3).
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Actions in .github/workflows (pinned by SHA, Dependabot updates the SHA and the comment)
   - package-ecosystem: github-actions
