@@ -58,8 +58,9 @@ insert into pg_temp.results select is(
 insert into pg_temp.results select is(
   array(select c.relname from pg_class c
         where c.relnamespace = 'public'::regnamespace
-          and c.relkind = 'S'
-          and has_sequence_privilege('anon', c.oid, 'usage, select, update')
+          and case when c.relkind = 'S'
+                   then has_sequence_privilege('anon', c.oid, 'usage, select, update')
+                   else false end
         order by 1),
   '{}'::name[],
   'anon has no privilege on any sequence in public'
