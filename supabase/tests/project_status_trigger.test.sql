@@ -10,8 +10,10 @@ grant all on pg_temp.results to authenticated;
 insert into auth.users (id, aud, role, email) values
   ('00000000-0000-0000-0000-00000000000a', 'authenticated', 'authenticated', 'a@example.test');
 
+-- Since step 2.6 the sign-up trigger already created the profiles, so only set the name.
 insert into public.profiles (id, display_name) values
-  ('00000000-0000-0000-0000-00000000000a', 'Photographer A');
+  ('00000000-0000-0000-0000-00000000000a', 'Photographer A')
+on conflict (id) do update set display_name = excluded.display_name;
 
 insert into public.clients (id, photographer_id, names, email) values
   ('00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-00000000000a',
