@@ -220,6 +220,15 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - Replace the demo buttons in `app/page.tsx`.
 - Dark theme stays out of scope.
 - **Done when:** the palette and status colors are described here and applied in `app/globals.css`, no temporary colors are left.
+
+**Design step: done (12.11.2026), visual check in the browser still open.** Palette and reasons:
+- Base: warm off-white `--background`, warm graphite `--foreground` and `--primary` (hue 60–85 in OKLCH). Warm neutrals give the "minimalism and warmth" mood without adding a loud color.
+- Sand `--accent` is only the hover and highlight background, so interactive states are visible but quiet.
+- One color for links and focus: muted teal `--link` (also `--ring`). It is the only cool color outside the status badges, so it reads as "clickable".
+- Status badges: light background plus dark text of the same hue, five different hues (neutral, blue, amber, violet, green) so a status is not recognised by brightness alone. Red stays reserved for `--destructive`.
+- Contrast: `lib/contrast.ts` (OKLCH to WCAG ratio) and `lib/contrast.test.ts` check that text on background, button text, text on accent, the link and all five badges reach 4.5:1 (AA). The test holds a hand-copied set of values, so it must be updated together with `app/globals.css`.
+- Typography: system font stack in `body`, no new package. The couple's page `/book/[token]` gets more whitespace, not a different palette. Dark theme stays out of scope.
+- `app/page.tsx` is now a simple start page; the "Sign in" button has no `href` until Phase 3. The strip of five badges on it is temporary, remove it in Phase 4.
 ### Phase 3. Authentication (Must 4)
  
 - Supabase Auth (email + password), `@supabase/ssr`, middleware, logout.
