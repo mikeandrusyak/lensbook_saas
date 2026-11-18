@@ -208,3 +208,19 @@
 - **What I checked and understood:** _to fill in by me._
 - **Security:** the migration is `create or replace`, so owner, `security invoker`, empty `search_path` and grants stay; `anon_privileges.test.sql`, `create_project.test.sql` (14 checks) and `update_project.test.sql` (15 checks) green after the push. The generated file contains only names and types of tables, columns, enum values and functions. Only fictional data; no service_role key; `.env.local` not read; no new packages.
 - **Requirement changes:** none. The open point about types is closed in `docs/plan.md`.
+
+---
+
+## Steps 5.1–5.4: service packages (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (IDOR, integrity): a package id comes from the URL and from a hidden form field, and a photographer must never see or change another photographer's package. Complexity: low, because the database part (table, RLS, seed, composite foreign key) already existed from Phase 2. Know-how: numbers typed in a form arrive as strings, so the limits of `numeric(10,2)` and `numeric(4,1)` must be checked before conversion.
+- **Prompts:** Plan mode; asked to start Phase 5; the agent proposed 5 steps (schema, read-only list, create, edit and hide, check); approved with "go" and then "далі" for each step. Asked whether the Ukrainian text "Заповніть це поле." in the form comes from the browser; decided to keep it.
+- **What the agent did:** `packageFormSchema` and `packageIdSchema` in `lib/validation/package.ts` (10 tests first, red then green; 97 tests in total). `/packages` list (active first, hidden ones greyed with "(Hidden)"), `/packages/new` with action `createPackage`, `/packages/[id]` with actions `updatePackage` and `setPackageActive` (Hide/Show), shared `PackageFields`, a "Packages" button on the dashboard. No migration, no SQL function, no new packages.
+- **What I fixed or rejected:**
+  - Rejected `Number()` on the raw string: `Number("1e3")` is 1000 and `Number("")` is 0. A regex checks the form first, then the string is converted.
+  - Rejected a new SQL function for packages: one row in one table is covered by RLS `with check`; `create_project` exists only because it changes two tables together.
+  - Kept the browser's native "required" message (language comes from the browser, like the date field); the server checks everything again with English generic texts.
+  - Known limit: if Hide/Show fails, the page just reloads without a message.
+- **Security:** `photographer_id` comes from `getUser()` on insert and is not part of any update; `is_active` is changed only by `setPackageActive`, which accepts only the literal values "true" and "false". On update, RLS hides someone else's row without an error, so both update actions check that exactly one row came back (same lesson as step 4.7). Someone else's package and a missing one give the same 404. No delete (revoked in the migration). Generic error texts. Only fictional data; no service_role key; `.env.local` not read; no new packages.
+- **Manual check with two accounts (Done when):** _to fill in by me:_ (1) a new user has 3 packages; (2) user B cannot open or change user A's package by its id (404); (3) a package of another photographer cannot be assigned to one's own project (already proven in `contracts_rls.test.sql`, test 7).
+- **Requirement changes:** none.

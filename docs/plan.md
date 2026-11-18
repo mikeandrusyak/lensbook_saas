@@ -283,8 +283,17 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - Entries in `docs/protocol.md`: steps 4.1–4.8. The field "What I checked and understood" is left for you to fill in.
 ### Phase 5. Service packages (Must 6)
  
+| Step | Content | Status |
+| --- | --- | --- |
+| 5.1 | `packageFormSchema` + `packageIdSchema` (test first) | ✅ Done 18.11.2026 |
+| 5.2 | `/packages` list (read-only), button on the dashboard | ✅ Done 18.11.2026 |
+| 5.3 | `createPackage` action, `/packages/new`, shared `PackageFields` | ✅ Done 18.11.2026 |
+| 5.4 | `/packages/[id]`: `updatePackage`, Hide/Show (`is_active`) | ✅ Done 18.11.2026 |
+| 5.5 | Manual check of "Done when" with two accounts, protocol entry |  ✅ Done 18.11.2026 |
+
 - List, add, edit; hiding (`is_active`) instead of deleting.
-- **Done when:** a new user has 3 packages; another photographer's package cannot be assigned to one's own project.
+- **Done when:** a new user has 3 packages; another photographer's package cannot be assigned to one's own project (database part proven by `contracts_rls.test.sql`, test 7; the two-user check in the browser is open).
+- Prices are shown in CHF. The native "required" messages come from the browser's language.
 ### Phase 6. Booking flow (Must 7)
  
 - `/book/[token]`: `get_booking`, package selection, names and location, typed signature and consent, `submit_booking`, thank-you page.
