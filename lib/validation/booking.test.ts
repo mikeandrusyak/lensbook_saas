@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { bookingFormSchema, bookingTokenSchema } from "./booking";
+import {
+  bookingFormSchema,
+  bookingTokenSchema,
+  bookingViewSchema,
+} from "./booking";
 
 describe("bookingTokenSchema", () => {
   it("accepts a token shaped like ours: 43 characters of base64url", () => {
@@ -109,5 +113,47 @@ describe("bookingFormSchema", () => {
     expect(
       bookingFormSchema.parse({ ...valid, signerName: html }).signerName,
     ).toBe(html);
+  });
+});
+
+// What get_booking returns (a jsonb value, typed only as Json by the generated types).
+const view = {
+  names: "Anna & Ben",
+  event_date: "2027-05-15",
+  location: "Lake venue",
+  already_signed: false,
+  packages: [
+    {
+      id: "3f2b8c1e-5d4a-4b7e-9c1a-2e6f8a0b4d5c",
+      name: "Essential",
+      description: null,
+      price: 1200.5,
+      duration_hours: 3.5,
+    },
+  ],
+};
+
+describe("bookingViewSchema", () => {
+  it("accepts what get_booking returns", () => {
+    expect(bookingViewSchema.parse(view)).toEqual(view);
+  });
+
+  it("accepts a missing date and location, and no packages", () => {
+    const parsed = bookingViewSchema.safeParse({
+      ...view,
+      event_date: null,
+      location: null,
+      packages: [],
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects null (no such token) and shapes that do not match", () => {
+    for (const value of [null, undefined, "", 42, {}, { ...view, names: 1 }]) {
+      expect(bookingViewSchema.safeParse(value).success).toBe(false);
+    }
+    expect(
+      bookingViewSchema.safeParse({ ...view, packages: [{ id: "x" }] }).success,
+    ).toBe(false);
   });
 });

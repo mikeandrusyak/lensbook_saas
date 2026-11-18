@@ -24,3 +24,21 @@ export const bookingFormSchema = z.object({
   names: optionalText,
   location: optionalText,
 });
+
+// The answer of get_booking. The generated types only say "Json", so the shape is checked
+// here instead of being cast. null (unknown token) fails this schema on purpose.
+export const bookingViewSchema = z.object({
+  names: z.string(),
+  event_date: z.string().nullable(),
+  location: z.string().nullable(),
+  already_signed: z.boolean(),
+  packages: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+      description: z.string().nullable(),
+      price: z.number(),
+      duration_hours: z.number(),
+    }),
+  ),
+});
