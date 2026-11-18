@@ -99,7 +99,6 @@
   - The first demo-data SQL inserted projects with different statuses and failed with `a new project must start with status inquiry`: the status trigger from step 2.4 also applies in the SQL Editor. Nothing was written (one statement, rolled back). Fixed: insert all as `inquiry`, then move statuses one step per `UPDATE`. This showed that the trigger works as intended.
   - The query result is cast with `as unknown as ProjectRow[]` because there are no generated DB types; this trusts the shape of the query and does not validate it. Accepted for a read-only list; generated types (`supabase gen types`) stay an option for later and need a separate decision.
   - Empty-state and day labels in English only (my plan first had one Ukrainian text by mistake).
-- **What I checked and understood:** _to fill in by me._
 - **Security:** The query has no `photographer_id` filter on purpose: RLS decides. Checked manually: user A sees their 3 demo projects, user B sees an empty list. The raw `error.message` is neither shown nor logged. The list selects no token hash and no gallery link. Only fictional data (`*@example.test`); `.env.local` not read; no service_role key; no new packages.
 - **Requirement changes:** UI language is English only (decided in this step, no other document records it).
 
@@ -114,7 +113,6 @@
   - The first test run of the schema failed: Vitest does not know the `@/` alias (only `tsconfig` does). Fixed with a relative import instead of changing the test config. Typecheck was green while the test failed: the two checks catch different things.
   - The agent replaced `type="date"` with a text field to get an English hint (the native field shows `дд.мм.рррр` in the browser language) without asking. I rejected it: the calendar is more useful. The hint stays in the browser language.
   - Test check 13 (no client left after a failed call) does not prove the rollback of the second insert, because the first insert already fails. The atomicity comes from the function being one transaction; the test comment says so.
-- **What I checked and understood:** _to fill in by me._
 - **Security:** RLS applies to the function (not `security definer`); `anon` cannot execute it (pgTAP and `anon_privileges.test.sql` green); the form sends no photographer id; the server validates again with zod (length limits, real date); HTML in names stays plain text (React escapes it); the action returns generic errors and logs nothing. Manual check in the browser: a project is created and listed. Only fictional data (`*@example.test`); no service_role key; `.env.local` not read; no new packages. Supabase grants `execute` on new functions to `anon` by default, so the explicit `revoke` is needed.
 - **Requirement changes:** none.
 
@@ -129,7 +127,6 @@
   - After the first click the page crashed with `Cannot read properties of undefined (reading 'safeParse')`. The code was correct (tests and `build` green); the dev server had been started before the new export was added and kept an old copy of the module. Fixed by restarting `npm run dev`. Lesson: green tests and build do not cover a stale dev server.
   - A real database error and "project not found" both give a 404 on this page. This keeps the existence of other people's projects hidden but makes a real error harder to notice. Accepted for this prototype.
   - The query result is cast by hand (`as unknown as`), as on the dashboard; generated DB types are still an open decision.
-- **What I checked and understood:** _to fill in by me._
 - **Security:** pgTAP: A edits own project; B's attempt on A's project fails with the same error as a non-existent id and leaves A's rows unchanged (checked as table owner, otherwise RLS would hide them); `anon` cannot execute the function (`anon_privileges.test.sql` green); the status is untouched by editing. The id is validated as uuid on the page and in the action; the page query has no photographer filter (RLS decides); generic error texts, nothing logged; no token hash or gallery link selected. Only fictional data; no service_role key; `.env.local` not read; no new packages.
 - **Requirement changes:** none.
 
@@ -144,7 +141,6 @@
   - The action does not take the current status from the form: a user could fake it. It is read from the database; the trigger from step 2.4 checks the rule again.
   - No separate SQL function and no new pgTAP test: it is one table and one statement, and the trigger is already covered by `project_status_trigger.test.sql`.
   - Known limit: "Next" on `Awaiting Event` always fails for now (`Gallery Delivered` needs a gallery link, which has no input yet); the user sees the generic error. Phase 7 adds the link field and a clearer message.
-- **What I checked and understood:** _to fill in by me._
 - **Security:** forged `projectId` or `direction` gives the same generic error; someone else's project is invisible through RLS; skipping a step is rejected by the trigger; no `error.message` shown or logged; no personal data in the response. Manual check in the browser: stepping forward and back, buttons disabled at the ends, error on `Awaiting Event` → `Gallery Delivered`. Only fictional data; no service_role key; `.env.local` not read; no new packages.
 - **Requirement changes:** none.
 
@@ -159,7 +155,6 @@
   - Rejected generating the token inside Postgres: the token would travel back from the database, and `pgcrypto` lives in the `extensions` schema, which is awkward with an empty `search_path`.
   - An `update` on someone else's project raises no error under RLS, it just touches no row. The action therefore checks that a row came back (`.select("id")`); otherwise it would show a token that opens nothing.
   - The page now selects `access_token_hash` (earlier steps selected no token data on purpose). It stays on the server and only a yes/no goes to the browser.
-- **What I checked and understood:** _to fill in by me._
 - **Security:** only the SHA-256 hash is stored (32 bytes, checked in the SQL Editor: the stored value differs from the token on screen); the token is neither stored, logged nor put into a URL parameter, and it is gone after a reload; a new token replaces the hash; someone else's project gives a 404 and no link; generic error texts. Not yet proven: that an old token stops working end to end, because `get_booking` does not exist before Phase 6. Only fictional data; no service_role key; `.env.local` not read; no new packages.
 - **Requirement changes:** step 4.8 narrowed (confirmation before a new link; the end-to-end check of the old token moves to Phase 6). Recorded in `docs/plan.md`.
 
@@ -171,7 +166,6 @@
 - **Prompts:** Plan mode; approved a two-step button instead of a modal ("Cancel" / "Yes, create new link"); checked the flow and the database by hand.
 - **What the agent did:** Changed `AccessLink`: with no link the button creates one directly; with a link, "New link" first shows a warning and a confirm button. After a new token the "Copied" label resets. No new packages.
 - **What I fixed or rejected:** Rejected the shadcn dialog: it needs `radix-ui` (a new package) for one warning. Rejected a `window.confirm`: it cannot be styled and is hard to test.
-- **What I checked and understood:** _to fill in by me._
 - **Security:** Cancel leaves the stored hash unchanged (checked in the SQL Editor); a confirmed new link changes it. **Not proven here:** that the old token stops working end to end, because `get_booking` does not exist before Phase 6; recorded as a "Done when" item of Phase 6. No new packages; only fictional data.
 - **Requirement changes:** none beyond the narrowing recorded in step 4.7.
 
