@@ -244,6 +244,18 @@ export type Database = {
         }
         Returns: string
       }
+      get_booking: { Args: { p_token: string }; Returns: Json }
+      submit_booking: {
+        Args: {
+          p_consent: boolean
+          p_location?: string
+          p_names?: string
+          p_package_id: string
+          p_signer_name: string
+          p_token: string
+        }
+        Returns: boolean
+      }
       update_project: {
         Args: {
           p_email: string
