@@ -102,3 +102,18 @@
 - **What I checked and understood:** _to fill in by me._
 - **Security:** The query has no `photographer_id` filter on purpose: RLS decides. Checked manually: user A sees their 3 demo projects, user B sees an empty list. The raw `error.message` is neither shown nor logged. The list selects no token hash and no gallery link. Only fictional data (`*@example.test`); `.env.local` not read; no service_role key; no new packages.
 - **Requirement changes:** UI language is English only (decided in this step, no other document records it).
+
+---
+
+## Steps 4.3–4.4: project form schema, `create_project` function, create form (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (multi-tenant isolation, data protection): the first step that writes client personal data; the photographer must come from the session, not from the form; client and project must be created together or not at all; no personal data in logs or error messages. Complexity: a function that runs with the caller's rights so RLS still applies. Know-how: `security invoker` vs `security definer`, `useActionState`, server actions.
+- **Prompts:** Plan mode; approved a plan for each step (4.3 schema, 4.4a SQL function with pgTAP first, 4.4b action, form, button) with "go"; ran the red test, `db push` and the green tests myself in the SQL Editor; checked the form in the browser and asked to bring the date picker back.
+- **What the agent did:** `projectFormSchema` (zod, 9 tests first, red then green; `email` exported from `auth.ts`); `supabase/tests/create_project.test.sql` (13 checks, run red) and migration `create_project_function` (security invoker, empty `search_path`, photographer from `auth.uid()`, execute revoked from `public` and `anon`); server action `createProject` (validates, calls `rpc`, generic errors); form page `/projects/new`; "New project" button on `/dashboard`. 72 tests, typecheck, lint, build green. No new packages.
+- **What I fixed or rejected:**
+  - The first test run of the schema failed: Vitest does not know the `@/` alias (only `tsconfig` does). Fixed with a relative import instead of changing the test config. Typecheck was green while the test failed: the two checks catch different things.
+  - The agent replaced `type="date"` with a text field to get an English hint (the native field shows `дд.мм.рррр` in the browser language) without asking. I rejected it: the calendar is more useful. The hint stays in the browser language.
+  - Test check 13 (no client left after a failed call) does not prove the rollback of the second insert, because the first insert already fails. The atomicity comes from the function being one transaction; the test comment says so.
+- **What I checked and understood:** _to fill in by me._
+- **Security:** RLS applies to the function (not `security definer`); `anon` cannot execute it (pgTAP and `anon_privileges.test.sql` green); the form sends no photographer id; the server validates again with zod (length limits, real date); HTML in names stays plain text (React escapes it); the action returns generic errors and logs nothing. Manual check in the browser: a project is created and listed. Only fictional data (`*@example.test`); no service_role key; `.env.local` not read; no new packages. Supabase grants `execute` on new functions to `anon` by default, so the explicit `revoke` is needed.
+- **Requirement changes:** none.
