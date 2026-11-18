@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { safeRedirectPath } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation/auth";
 
@@ -27,5 +28,6 @@ export async function login(
     return { error: "Email or password is incorrect." };
   }
 
-  redirect("/dashboard");
+  // The hidden "next" field can be forged like the URL: validate it here.
+  redirect(safeRedirectPath(formData.get("next")));
 }

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { loginRedirectUrl } from "@/lib/auth/login-url";
 import { decideAccess } from "@/lib/auth/routes";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
@@ -38,9 +39,10 @@ export async function proxy(request: NextRequest) {
   const access = decideAccess(request.nextUrl.pathname, user !== null);
   if (access === "allow") return response;
 
-  const target = request.nextUrl.clone();
-  target.pathname = access === "to-login" ? "/login" : "/dashboard";
-  target.search = "";
+  const target =
+    access === "to-login"
+      ? new URL(loginRedirectUrl(request.nextUrl.pathname), request.url)
+      : new URL("/dashboard", request.url);
   const redirect = NextResponse.redirect(target);
   // Keep any cookies refreshed above, otherwise the session would be lost on redirect.
   response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
