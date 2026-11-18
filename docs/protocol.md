@@ -117,3 +117,18 @@
 - **What I checked and understood:** _to fill in by me._
 - **Security:** RLS applies to the function (not `security definer`); `anon` cannot execute it (pgTAP and `anon_privileges.test.sql` green); the form sends no photographer id; the server validates again with zod (length limits, real date); HTML in names stays plain text (React escapes it); the action returns generic errors and logs nothing. Manual check in the browser: a project is created and listed. Only fictional data (`*@example.test`); no service_role key; `.env.local` not read; no new packages. Supabase grants `execute` on new functions to `anon` by default, so the explicit `revoke` is needed.
 - **Requirement changes:** none.
+
+---
+
+## Step 4.5: edit a project (`update_project`, `/projects/[id]`) (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (IDOR): the project id comes from the URL and a hidden field, so the user controls it; another photographer's project must be neither readable nor editable, and the error must not reveal whether it exists. Complexity: two tables edited together (client and project). Know-how: `params` as a Promise in Next 16, `maybeSingle()`, server vs client components.
+- **Prompts:** Plan mode; agent recommended one atomic SQL function instead of two updates; approved the plan with "go"; ran the red test, `db push` and the green tests myself; checked the page in the browser.
+- **What the agent did:** `supabase/tests/update_project.test.sql` (14 checks, run red) and migration `update_project_function` (security invoker, empty `search_path`, status not a parameter, `no_data_found` when RLS hides the row, execute revoked from `public` and `anon`); `projectIdSchema` (uuid, test first); server action `updateProject`; page `/projects/[id]` with `notFound()`; shared `ProjectFields` component (also used by the create form); link from the project list. 74 tests, typecheck, lint, build green. No new packages.
+- **What I fixed or rejected:**
+  - After the first click the page crashed with `Cannot read properties of undefined (reading 'safeParse')`. The code was correct (tests and `build` green); the dev server had been started before the new export was added and kept an old copy of the module. Fixed by restarting `npm run dev`. Lesson: green tests and build do not cover a stale dev server.
+  - A real database error and "project not found" both give a 404 on this page. This keeps the existence of other people's projects hidden but makes a real error harder to notice. Accepted for this prototype.
+  - The query result is cast by hand (`as unknown as`), as on the dashboard; generated DB types are still an open decision.
+- **What I checked and understood:** _to fill in by me._
+- **Security:** pgTAP: A edits own project; B's attempt on A's project fails with the same error as a non-existent id and leaves A's rows unchanged (checked as table owner, otherwise RLS would hide them); `anon` cannot execute the function (`anon_privileges.test.sql` green); the status is untouched by editing. The id is validated as uuid on the page and in the action; the page query has no photographer filter (RLS decides); generic error texts, nothing logged; no token hash or gallery link selected. Only fictional data; no service_role key; `.env.local` not read; no new packages.
+- **Requirement changes:** none.

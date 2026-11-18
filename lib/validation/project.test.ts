@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { projectFormSchema } from "./project";
+import { projectFormSchema, projectIdSchema } from "./project";
+
+describe("projectIdSchema", () => {
+  it("accepts a uuid", () => {
+    const id = "3f2b8c1e-5d4a-4b7e-9c1a-2e6f8a0b4d5c";
+    expect(projectIdSchema.safeParse(id).success).toBe(true);
+  });
+
+  it("rejects anything that is not a uuid", () => {
+    for (const value of ["", "abc", "123", "3f2b8c1e-5d4a-4b7e-9c1a", null]) {
+      expect(projectIdSchema.safeParse(value).success).toBe(false);
+    }
+  });
+});
 
 const valid = {
   names: "Anna & Max Example",

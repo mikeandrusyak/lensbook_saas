@@ -68,9 +68,12 @@ export default async function DashboardPage() {
               className="flex items-center justify-between gap-4 rounded-lg border border-border p-4"
             >
               <div className="min-w-0">
-                <p className="truncate font-medium">
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="block truncate font-medium underline-offset-4 hover:underline"
+                >
                   {project.clients?.names ?? "Unknown client"}
-                </p>
+                </Link>
                 <p className="text-sm text-foreground/70">
                   {project.event_date
                     ? `${project.event_date} (${formatDaysUntil(daysUntil(project.event_date, today))})`

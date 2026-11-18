@@ -262,7 +262,7 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 | 4.2 | Status map, `StatusBadge`, project list on `/dashboard` (read-only) | ✅ Done 18.11.2026 |
 | 4.3 | zod schemas for client and project (test first) | ✅ Done 18.11.2026 |
 | 4.4 | `create_project` SQL function (pgTAP first), server action, form, "New project" button | ✅ Done 18.11.2026 |
-| 4.5 | Edit project page | ⬜ |
+| 4.5 | `update_project` SQL function (pgTAP first), `/projects/[id]` page, action, shared form fields | ✅ Done 18.11.2026 |
 | 4.6 | Status change by one step (forward/back) | ⬜ |
 | 4.7 | Token generation (pgTAP first), link shown once | ⬜ |
 | 4.8 | Token regeneration, old token stops working, protocol entry | ⬜ |

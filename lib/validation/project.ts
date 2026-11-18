@@ -28,6 +28,10 @@ const eventDate = z
   .transform((value) => value || null)
   .refine((value) => value === null || isRealDate(value));
 
+// The project id comes from the URL or a form field, so the user controls it.
+// A malformed value would make Postgres fail with a type error; reject it earlier.
+export const projectIdSchema = z.uuid();
+
 // Only checks the shape and length. It does not remove HTML: React escapes text on render.
 export const projectFormSchema = z.object({
   names: z.string().trim().min(1).max(200),
