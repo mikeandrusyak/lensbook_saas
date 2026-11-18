@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 // TEMPORARY: visual check of the status colors, remove in Phase 4 when real badges exist
 const statusPreview = [
@@ -29,7 +30,9 @@ export default function Home() {
         A calm place for wedding photographers to keep clients, contracts and
         galleries in order.
       </p>
-      <Button>Sign in</Button>
+      <Link href="/login" className={buttonVariants()}>
+        Sign in
+      </Link>
       <ul className="flex flex-wrap justify-center gap-2">
         {statusPreview.map(({ label, className }) => (
           <li
