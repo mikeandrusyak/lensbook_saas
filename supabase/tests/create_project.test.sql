@@ -1,5 +1,5 @@
 begin;
-select plan(13);
+select plan(14);
 
 -- The SQL Editor shows only the last result set, so every assertion is stored here
 -- and printed together at the end. The table lives in this transaction only.
@@ -101,6 +101,13 @@ insert into pg_temp.results select is(
      and p.event_date is null and p.location is null),
   1::bigint,
   'the project of B belongs to B'
+);
+
+-- 14. Date and location can be left out of the call altogether (they default to null).
+-- This is what the generated TypeScript types describe: optional, not "string or null".
+insert into pg_temp.results select lives_ok(
+  $$select public.create_project(p_names := 'Eva & Felix Example', p_email := 'eva.felix@example.test')$$,
+  'create_project can be called without date and location'
 );
 
 -- 12.-13. A failed call leaves nothing behind. The function body is one transaction,

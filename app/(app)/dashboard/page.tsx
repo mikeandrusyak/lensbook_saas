@@ -5,17 +5,8 @@ import { StatusControls } from "@/components/status-controls";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { daysUntil } from "@/lib/projects/days-until";
 import { formatDaysUntil } from "@/lib/projects/format-days-until";
-import type { ProjectStatus } from "@/lib/projects/status";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "../actions";
-
-type ProjectRow = {
-  id: string;
-  event_date: string | null;
-  location: string | null;
-  status: ProjectStatus;
-  clients: { names: string } | null;
-};
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -34,7 +25,7 @@ export default async function DashboardPage() {
     .from("projects")
     .select("id, event_date, location, status, clients(names)")
     .order("event_date", { ascending: true, nullsFirst: false });
-  const projects = (data ?? []) as unknown as ProjectRow[];
+  const projects = data ?? [];
   const today = new Date();
 
   return (

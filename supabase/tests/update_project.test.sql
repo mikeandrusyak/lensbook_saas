@@ -1,5 +1,5 @@
 begin;
-select plan(14);
+select plan(15);
 
 -- The SQL Editor shows only the last result set, so every assertion is stored here
 -- and printed together at the end. The table lives in this transaction only.
@@ -144,6 +144,13 @@ insert into pg_temp.results select throws_ok(
   'P0002',
   null,
   'a project that does not exist gives the same error'
+);
+
+-- 15. Date and location can be left out of the call altogether (they default to null).
+insert into pg_temp.results select lives_ok(
+  $$select public.update_project(p_project_id := '00000000-0000-0000-0000-000000000a11',
+      p_names := 'Anna & Ben Again', p_email := 'anna.again@example.test')$$,
+  'update_project can be called without date and location'
 );
 
 -- finish() returns rows only when something is wrong (failed or missing tests).

@@ -5,13 +5,6 @@ import { projectIdSchema } from "@/lib/validation/project";
 import { AccessLink } from "./access-link";
 import { EditProjectForm } from "./edit-form";
 
-type ProjectRow = {
-  event_date: string | null;
-  location: string | null;
-  access_token_hash: string | null;
-  clients: { names: string; email: string } | null;
-};
-
 export default async function EditProjectPage({
   params,
 }: {
@@ -43,7 +36,7 @@ export default async function EditProjectPage({
     .select("event_date, location, access_token_hash, clients(names, email)")
     .eq("id", projectId.data)
     .maybeSingle();
-  const project = data as unknown as ProjectRow | null;
+  const project = data;
   if (error || !project || !project.clients) {
     notFound();
   }
