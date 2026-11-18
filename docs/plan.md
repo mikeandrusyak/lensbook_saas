@@ -256,6 +256,17 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - **Done when:** an unauthenticated user cannot reach protected routes; the session survives a reload; a second user sees an empty database with three packages.
 ### Phase 4. Projects and clients (Must 5)
  
+| Step | Content | Status |
+| --- | --- | --- |
+| 4.1 | `daysUntil` + `formatDaysUntil` (test first) | ✅ Done 18.11.2026 |
+| 4.2 | Status map, `StatusBadge`, project list on `/dashboard` (read-only) | ✅ Done 18.11.2026 |
+| 4.3 | zod schemas for client and project (test first) | ⬜ |
+| 4.4 | Server action: create client and project | ⬜ |
+| 4.5 | Edit project page | ⬜ |
+| 4.6 | Status change by one step (forward/back) | ⬜ |
+| 4.7 | Token generation (pgTAP first), link shown once | ⬜ |
+| 4.8 | Token regeneration, old token stops working, protocol entry | ⬜ |
+ 
 - List ordered by `event_date` with a status badge and days until the event.
 - Create and edit a project with a client; change status by one step (the rule is enforced by the database).
 - Token generation: the link is shown once; "new link" regenerates.

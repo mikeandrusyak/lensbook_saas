@@ -87,3 +87,18 @@
   - The agent could not read the CI log (no `gh`) and could not look up the advisory text (request denied); it worked from the local osv-scanner output and reproduced the build error with empty env variables.
 - **Security:** Generic login error for wrong password, unknown email and invalid input; no email, password or token in logs, URLs or returned state; server checks use `getUser()`; proxy and page both check the session; `/book/` prefix ends with a slash, so `/booking` is not public; open redirect cases tested (`//host`, `\`, tabs); no service_role key, `.env.local` not read. Manual check passed (anonymous `/dashboard` goes to login, session survives reload, logout works, logged-in user is kept off `/login`, second user sees only own data). CI green after the fixes. Accepted risks: two dev-only advisories (`minimatch`, `picomatch`), re-check before 2027-01-03; brute-force limits are Supabase Auth settings, not built here.
 - **Requirement changes:** none.
+
+---
+
+## Steps 4.1–4.2: days until the event, status map, projects list on `/dashboard` (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (multi-tenant isolation): the list must show only the logged-in photographer's projects, and the page must not leak data through error messages. Complexity: calendar-day arithmetic (time zones, daylight saving, invalid dates). Know-how: Supabase nested select (`clients(names)`) and why Tailwind class names must be written out in full.
+- **Prompts:** Plan mode; asked "what is next"; approved a split of Phase 4 into 8 small steps; for each step approved a plan (files, tests, expected result) with "go"; decided that the UI is English only; ran the SQL for demo data myself in the SQL Editor and checked the page with two users.
+- **What the agent did:** Tests first, run red, then code: `daysUntil` (UTC midnight arithmetic, rejects invalid dates), `formatDaysUntil` ("today", "tomorrow", "in N days", "N days ago"), `lib/projects/status.ts` (5 statuses in enum order, labels, badge classes), `StatusBadge`; rewrote `/dashboard` as a read-only project list (sorted by `event_date`, projects without a date last, empty state, generic error text); removed the temporary badge strip from the start page. 63 tests, typecheck, lint and build green. No new packages.
+- **What I fixed or rejected:**
+  - The first demo-data SQL inserted projects with different statuses and failed with `a new project must start with status inquiry`: the status trigger from step 2.4 also applies in the SQL Editor. Nothing was written (one statement, rolled back). Fixed: insert all as `inquiry`, then move statuses one step per `UPDATE`. This showed that the trigger works as intended.
+  - The query result is cast with `as unknown as ProjectRow[]` because there are no generated DB types; this trusts the shape of the query and does not validate it. Accepted for a read-only list; generated types (`supabase gen types`) stay an option for later and need a separate decision.
+  - Empty-state and day labels in English only (my plan first had one Ukrainian text by mistake).
+- **What I checked and understood:** _to fill in by me._
+- **Security:** The query has no `photographer_id` filter on purpose: RLS decides. Checked manually: user A sees their 3 demo projects, user B sees an empty list. The raw `error.message` is neither shown nor logged. The list selects no token hash and no gallery link. Only fictional data (`*@example.test`); `.env.local` not read; no service_role key; no new packages.
+- **Requirement changes:** UI language is English only (decided in this step, no other document records it).

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // 254 is the maximum length of an email address (RFC 5321)
-const email = z.string().trim().toLowerCase().max(254).pipe(z.email());
+export const email = z.string().trim().toLowerCase().max(254).pipe(z.email());
 
 // bcrypt, which Supabase Auth uses, only looks at the first 72 bytes of a password,
 // so the limit is counted in bytes, not characters. The password is never trimmed.
