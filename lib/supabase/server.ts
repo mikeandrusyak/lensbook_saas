@@ -5,8 +5,10 @@ import { getSupabaseEnv } from "./env";
 // Client for Server Components, server actions and route handlers.
 // The session lives in cookies; every request runs as the logged-in user, so RLS applies.
 export async function createClient() {
-  const { url, anonKey } = getSupabaseEnv();
+  // cookies() first: it marks the page as dynamic, so `next build` skips it instead
+  // of prerendering it, and the build does not need the Supabase variables.
   const cookieStore = await cookies();
+  const { url, anonKey } = getSupabaseEnv();
 
   return createServerClient(url, anonKey, {
     cookies: {

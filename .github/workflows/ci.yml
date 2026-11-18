@@ -39,8 +39,10 @@ jobs:
           persist-credentials: false
 
       # Reads package-lock.json only, so no install is needed.
-      # Fails the job on high or critical vulnerabilities.
-      - run: npm audit --audit-level=high
+      # Fails the job on high or critical vulnerabilities in production dependencies.
+      # Dev-only packages (lint, tests) are covered by the osv-scanner job, where
+      # accepted findings are listed with a reason and an expiry date in osv-scanner.toml.
+      - run: npm audit --omit=dev --audit-level=high
 
   osv-scanner:
     runs-on: ubuntu-latest
