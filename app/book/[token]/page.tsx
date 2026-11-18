@@ -4,6 +4,8 @@ import {
   bookingTokenSchema,
   bookingViewSchema,
 } from "@/lib/validation/booking";
+import { submitBooking } from "./actions";
+import { BookingForm } from "./booking-form";
 
 // Public page for the couple: no login, the token in the path is the only key.
 // A malformed token and a token that does not exist both end in the same 404,
@@ -60,26 +62,13 @@ export default async function BookingPage({
           No packages are available right now. Please contact your photographer.
         </p>
       ) : (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-medium">Packages</h2>
-          <ul className="flex flex-col gap-3">
-            {booking.packages.map((pkg) => (
-              <li key={pkg.id} className="rounded-lg border border-border p-4">
-                <div className="flex items-baseline justify-between gap-4">
-                  {/* React escapes the text, so a name with HTML tags is shown, not run */}
-                  <h3 className="truncate font-medium">{pkg.name}</h3>
-                  <p className="shrink-0 font-medium">
-                    CHF {pkg.price.toFixed(2)}
-                  </p>
-                </div>
-                <p className="text-sm text-foreground/70">
-                  {pkg.duration_hours} h
-                  {pkg.description ? ` · ${pkg.description}` : ""}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <BookingForm
+          packages={booking.packages}
+          defaultNames={booking.names}
+          defaultLocation={booking.location}
+          // Bound on the server: the token never becomes a form field.
+          action={submitBooking.bind(null, token)}
+        />
       )}
     </main>
   );

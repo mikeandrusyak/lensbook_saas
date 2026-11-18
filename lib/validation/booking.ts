@@ -42,3 +42,12 @@ export const bookingViewSchema = z.object({
     }),
   ),
 });
+
+// The copy of the package stored in contracts.package_snapshot by submit_booking.
+// The generated types only say "Json", so the shape is checked here instead of being cast.
+export const packageSnapshotSchema = z.object({
+  name: z.string(),
+  description: z.string().nullable(),
+  price: z.number(),
+  duration_hours: z.number(),
+});

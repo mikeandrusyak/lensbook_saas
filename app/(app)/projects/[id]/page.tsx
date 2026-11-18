@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { projectIdSchema } from "@/lib/validation/project";
 import { AccessLink } from "./access-link";
+import { BookingSummary } from "./booking-summary";
 import { EditProjectForm } from "./edit-form";
 
 export default async function EditProjectPage({
@@ -41,6 +42,14 @@ export default async function EditProjectPage({
     notFound();
   }
 
+  // The signed booking, if any. contracts allows only select for the photographer, and RLS
+  // limits it to their own rows. At most one row per project (unique project_id).
+  const { data: contract, error: contractError } = await supabase
+    .from("contracts")
+    .select("signer_name, signed_at, package_snapshot")
+    .eq("project_id", projectId.data)
+    .maybeSingle();
+
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
       <h1 className="text-2xl font-semibold tracking-tight">Edit project</h1>
@@ -57,6 +66,14 @@ export default async function EditProjectPage({
         projectId={projectId.data}
         hasLink={project.access_token_hash !== null}
       />
+      {contractError ? (
+        // Generic text on purpose: the raw error message is not shown or logged.
+        <p role="alert" className="text-sm">
+          Could not load the booking. Please try again.
+        </p>
+      ) : (
+        <BookingSummary contract={contract} />
+      )}
       <p className="text-sm text-foreground/70">
         <Link href="/dashboard" className="font-medium underline">
           Back to projects

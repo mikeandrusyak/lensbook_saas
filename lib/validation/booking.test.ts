@@ -3,6 +3,7 @@ import {
   bookingFormSchema,
   bookingTokenSchema,
   bookingViewSchema,
+  packageSnapshotSchema,
 } from "./booking";
 
 describe("bookingTokenSchema", () => {
@@ -155,5 +156,32 @@ describe("bookingViewSchema", () => {
     expect(
       bookingViewSchema.safeParse({ ...view, packages: [{ id: "x" }] }).success,
     ).toBe(false);
+  });
+});
+
+// contracts.package_snapshot is a jsonb column, typed only as Json by the generated types.
+describe("packageSnapshotSchema", () => {
+  const snapshot = {
+    name: "Essential",
+    description: null,
+    price: 1200.5,
+    duration_hours: 3.5,
+  };
+
+  it("accepts the snapshot that submit_booking writes", () => {
+    expect(packageSnapshotSchema.parse(snapshot)).toEqual(snapshot);
+  });
+
+  it("accepts a description", () => {
+    expect(
+      packageSnapshotSchema.safeParse({ ...snapshot, description: "Portraits" })
+        .success,
+    ).toBe(true);
+  });
+
+  it("rejects anything else", () => {
+    for (const value of [null, "", 42, {}, { ...snapshot, price: "1200" }]) {
+      expect(packageSnapshotSchema.safeParse(value).success).toBe(false);
+    }
   });
 });

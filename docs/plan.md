@@ -296,6 +296,18 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - Prices are shown in CHF. The native "required" messages come from the browser's language.
 ### Phase 6. Booking flow (Must 7)
  
+| Step | Content | Status |
+| --- | --- | --- |
+| 6.1 | Test, then migration `get_booking(token)` | ✅ Done 18.11.2026 |
+| 6.2 | Test, then migration `submit_booking(...)` | ✅ Done 18.11.2026 |
+| 6.3 | zod schemas for the token and the booking form (test first) | ✅ Done 18.11.2026 |
+| 6.4 | `/book/[token]` page: `get_booking`, same 404 for invalid and unknown token | ✅ Done 18.11.2026 |
+| 6.5 | Booking form, `submitBooking` action, thank-you message | ✅ Done 18.11.2026 |
+| 6.6 | `Referrer-Policy`, `Cache-Control`, `X-Robots-Tag` on `/book/*`, log review | ✅ Done 18.11.2026 |
+| 6.7 | Photographer sees the signed booking on `/projects/[id]` (signature, date, package snapshot) | In progress |
+| 6.8 | Manual check of "Done when", protocol entry | Open |
+
+- Step 6.7 was added because the plan promised a "contract signed" marker (see Booking flow above) but no step built it. A marker on the dashboard list is not part of 6.7.
 - `/book/[token]`: `get_booking`, package selection, names and location, typed signature and consent, `submit_booking`, thank-you page.
 - An invalid and a non-existent token give the same response.
 - `Referrer-Policy: no-referrer`, `Cache-Control: no-store`, token kept out of logs; zod with length limits.
