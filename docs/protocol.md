@@ -178,3 +178,18 @@
 - **Security:** critical. Personal data of couples, a secret token, and an id taken from the URL (IDOR). Protections: RLS on every call, ids validated as uuid, generic errors, only the hash stored, tests with two users.
 - **Liability:** moderate for a prototype with fictional data; in production high (personal data of clients, a link that gives access to their booking).
 - **Where the agent or I made mistakes:** wrong demo SQL (status trigger), an `@/` alias missing in Vitest, a date field replaced without asking, a stale dev server that looked like a code bug.
+
+---
+
+## Step 4.9: wire `?next=` after login (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (open redirect, phishing): `?next=` comes from the URL and from a hidden form field, both forgeable, so a link on our own domain must never send the user to another site. Complexity: three places take part (proxy, login page, login action). Know-how: server page reading `searchParams` (a Promise in Next 16) and passing it to a client form.
+- **Prompts:** Asked "what is next"; chose to close two open points from Phase 3/4 (`?next=` and generated types); approved the plan for part A with "так"; asked what the open-redirect check means; confirmed it works in the browser ("все працює").
+- **What the agent did:** `loginRedirectUrl` in `lib/auth/login-url.ts` (4 tests first, red then green; 87 tests in total); `proxy.ts` sends visitors to `/login?next=<pathname>` (pathname only, no query string; `/`, `/login`, `/signup` get a plain `/login`); `/login` split into a server `page.tsx` and a client `login-form.tsx` with a hidden `next` field; the `login` action ends with `redirect(safeRedirectPath(formData.get("next")))`. No new packages.
+- **What I fixed or rejected:**
+  - A client page with `useSearchParams` would need `<Suspense>` for `build`; a server page passing a prop is simpler.
+  - The URL-building logic is a separate function so it can be tested; in `proxy.ts` it would not be.
+  - Side effect: `/login` is now dynamic in `build` (it reads `searchParams`).
+- **What I checked and understood:** _to fill in by me._
+- **Security:** `safeRedirectPath` runs on the server in the action, after the form is submitted, so a forged hidden field gives the same result as a forged URL. Manual check: `?next=https://evil.com` and `?next=//evil.com` both end on `/dashboard`; a protected page such as `/projects/<id>` returns there after login. Only the path is put into `next`, no query string, token or personal data; `/book/...` is public and never goes through login. Only fictional data; no service_role key; `.env.local` not read; no new packages.
+- **Requirement changes:** none. The open point from Phase 3 is closed in `docs/plan.md`.

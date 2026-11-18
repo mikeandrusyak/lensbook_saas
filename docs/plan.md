@@ -277,7 +277,7 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - "Done when": a photographer sees only their own projects (checked with two users); a status cannot be skipped (database trigger, tested in step 2.4, and the UI offers only neighbours). **Open:** that the old token stops working after "New link" is proven only up to the database (the hash is replaced); the end-to-end check needs `get_booking` and is a "Done when" item of Phase 6.
 - Database functions `create_project` and `update_project` are `security invoker` with an empty `search_path`; `anon` cannot execute them (pgTAP and `anon_privileges.test.sql`).
 - Known limit: "Next" on `Awaiting Event` fails until Phase 7 adds the gallery link field.
-- Still open from Phase 3: wire `?next=` with `safeRedirectPath` (now there are several protected pages).
+- ~~Still open from Phase 3: wire `?next=` with `safeRedirectPath`~~ done 18.11.2026 (step 4.9).
 - Not yet decided: generated database types (`supabase gen types`) instead of the manual casts (`as unknown as`) in the dashboard and the project page.
 - The date field shows the browser's language (`дд.мм.рррр`); the page cannot change it.
 - Entries in `docs/protocol.md`: steps 4.1–4.8. The field "What I checked and understood" is left for you to fill in.
