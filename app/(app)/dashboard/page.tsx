@@ -39,6 +39,9 @@ export default async function DashboardPage() {
           <Link href="/projects/new" className={buttonVariants()}>
             New project
           </Link>
+          <Link href="/packages" className={buttonVariants({ variant: "outline" })}>
+            Packages
+          </Link>
           <form action={logout}>
             <Button type="submit" variant="outline">
               Sign out

@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { packageFormSchema } from "./package";
+import { packageFormSchema, packageIdSchema } from "./package";
+
+describe("packageIdSchema", () => {
+  it("accepts a uuid", () => {
+    const id = "3f2b8c1e-5d4a-4b7e-9c1a-2e6f8a0b4d5c";
+    expect(packageIdSchema.safeParse(id).success).toBe(true);
+  });
+
+  it("rejects anything that is not a uuid", () => {
+    for (const value of ["", "abc", "123", "3f2b8c1e-5d4a-4b7e-9c1a", null]) {
+      expect(packageIdSchema.safeParse(value).success).toBe(false);
+    }
+  });
+});
 
 // Form fields always arrive as strings.
 const valid = {

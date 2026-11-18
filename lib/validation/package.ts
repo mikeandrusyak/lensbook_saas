@@ -22,6 +22,10 @@ const description = z
   .optional()
   .transform((value) => value || null);
 
+// The package id comes from the URL or a hidden form field, so the user controls it.
+// A malformed value would make Postgres fail with a type error; reject it earlier.
+export const packageIdSchema = z.uuid();
+
 // Only checks shape and length. It does not remove HTML: React escapes text on render.
 export const packageFormSchema = z.object({
   name: z.string().trim().min(1).max(100),
