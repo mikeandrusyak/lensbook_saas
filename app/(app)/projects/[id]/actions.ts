@@ -32,8 +32,8 @@ export async function updateProject(
     p_project_id: projectId.data,
     p_names: parsed.data.names,
     p_email: parsed.data.email,
-    p_event_date: parsed.data.eventDate,
-    p_location: parsed.data.location,
+    p_event_date: parsed.data.eventDate ?? undefined,
+    p_location: parsed.data.location ?? undefined,
   });
   if (error) {
     return { error: "Could not save the project. Please try again." };

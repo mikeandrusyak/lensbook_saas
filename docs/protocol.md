@@ -193,3 +193,18 @@
 - **What I checked and understood:** _to fill in by me._
 - **Security:** `safeRedirectPath` runs on the server in the action, after the form is submitted, so a forged hidden field gives the same result as a forged URL. Manual check: `?next=https://evil.com` and `?next=//evil.com` both end on `/dashboard`; a protected page such as `/projects/<id>` returns there after login. Only the path is put into `next`, no query string, token or personal data; `/book/...` is public and never goes through login. Only fictional data; no service_role key; `.env.local` not read; no new packages.
 - **Requirement changes:** none. The open point from Phase 3 is closed in `docs/plan.md`.
+
+---
+
+## Step 4.10: generated database types instead of manual casts (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security and data integrity: a hand-written type is a promise the compiler cannot check; if the schema changes, the code still compiles and fails at runtime. Complexity: the generated types also checked the `rpc` calls and found a mismatch. Know-how: `supabase gen types --linked` (no Docker), a typed client with `createServerClient<Database>`, how Postgres function defaults appear in TypeScript.
+- **Prompts:** Chose this as the second open point; approved the plan ("так", "далі"); chose the option "migration with `default null`" when the types disagreed with the SQL functions; ran the pgTAP files by hand (one red, then three green after the migration).
+- **What the agent did:** generated `lib/supabase/database.types.ts` (read completely: schema only, no data, no secrets); passed `Database` to the server and browser clients; removed both `as unknown as` casts and the hand-written `ProjectRow` types (the join `clients(...)` is inferred correctly); added `npm run types`. The types then rejected 4 `rpc` calls: `create_project` and `update_project` accepted null for date and location, the generator typed them as plain `string`. Fix: pgTAP check first (red), migration `project_functions_optional_args` (`default null` on the last two parameters, same behaviour for callers passing null), regenerated types, call sites pass `?? undefined`. No new packages.
+- **What I fixed or rejected:**
+  - Rejected `as string` at the 4 call sites: it would bring back the same kind of lie the casts were.
+  - Rejected hiding the mismatch: the types showed a real difference between SQL and the app, which is the point of generating them.
+  - Known limit: the generated file ages after every migration; `npm run types` must be run again (also on the checklist for schema steps).
+- **What I checked and understood:** _to fill in by me._
+- **Security:** the migration is `create or replace`, so owner, `security invoker`, empty `search_path` and grants stay; `anon_privileges.test.sql`, `create_project.test.sql` (14 checks) and `update_project.test.sql` (15 checks) green after the push. The generated file contains only names and types of tables, columns, enum values and functions. Only fictional data; no service_role key; `.env.local` not read; no new packages.
+- **Requirement changes:** none. The open point about types is closed in `docs/plan.md`.

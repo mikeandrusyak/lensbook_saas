@@ -278,7 +278,7 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - Database functions `create_project` and `update_project` are `security invoker` with an empty `search_path`; `anon` cannot execute them (pgTAP and `anon_privileges.test.sql`).
 - Known limit: "Next" on `Awaiting Event` fails until Phase 7 adds the gallery link field.
 - ~~Still open from Phase 3: wire `?next=` with `safeRedirectPath`~~ done 18.11.2026 (step 4.9).
-- Not yet decided: generated database types (`supabase gen types`) instead of the manual casts (`as unknown as`) in the dashboard and the project page.
+- ~~Generated database types instead of manual casts~~ done 18.11.2026 (step 4.10): `lib/supabase/database.types.ts`, regenerate with `npm run types` after every migration.
 - The date field shows the browser's language (`дд.мм.рррр`); the page cannot change it.
 - Entries in `docs/protocol.md`: steps 4.1–4.8. The field "What I checked and understood" is left for you to fill in.
 ### Phase 5. Service packages (Must 6)

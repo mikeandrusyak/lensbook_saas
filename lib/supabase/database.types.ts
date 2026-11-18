@@ -238,8 +238,8 @@ export type Database = {
       create_project: {
         Args: {
           p_email: string
-          p_event_date: string
-          p_location: string
+          p_event_date?: string
+          p_location?: string
           p_names: string
         }
         Returns: string
@@ -247,8 +247,8 @@ export type Database = {
       update_project: {
         Args: {
           p_email: string
-          p_event_date: string
-          p_location: string
+          p_event_date?: string
+          p_location?: string
           p_names: string
           p_project_id: string
         }

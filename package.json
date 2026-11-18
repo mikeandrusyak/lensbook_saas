@@ -31,6 +31,7 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "types": "supabase gen types typescript --linked > lib/supabase/database.types.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
