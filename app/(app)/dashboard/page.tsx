@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
+import { StatusControls } from "@/components/status-controls";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { daysUntil } from "@/lib/projects/days-until";
 import { formatDaysUntil } from "@/lib/projects/format-days-until";
@@ -81,7 +82,10 @@ export default async function DashboardPage() {
                   {project.location ? ` · ${project.location}` : ""}
                 </p>
               </div>
-              <StatusBadge status={project.status} />
+              <div className="flex flex-col items-end gap-2">
+                <StatusBadge status={project.status} />
+                <StatusControls projectId={project.id} status={project.status} />
+              </div>
             </li>
           ))}
         </ul>

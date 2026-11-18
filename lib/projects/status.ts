@@ -36,6 +36,19 @@ const STATUS_INFO: Record<ProjectStatus, { label: string; badgeClass: string }> 
     },
   };
 
+export type StatusDirection = "forward" | "back";
+
+// The neighbouring status in enum order, or null at the ends. The database trigger
+// enforces the same one-step rule; this only picks the target for the buttons.
+export function neighborStatus(
+  status: ProjectStatus,
+  direction: StatusDirection,
+): ProjectStatus | null {
+  const index = PROJECT_STATUSES.indexOf(status);
+  const neighbor = PROJECT_STATUSES[index + (direction === "forward" ? 1 : -1)];
+  return neighbor ?? null;
+}
+
 export function statusLabel(status: ProjectStatus): string {
   return STATUS_INFO[status].label;
 }

@@ -1,5 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { PROJECT_STATUSES, statusBadgeClass, statusLabel } from "./status";
+import {
+  neighborStatus,
+  PROJECT_STATUSES,
+  statusBadgeClass,
+  statusLabel,
+} from "./status";
+
+describe("neighborStatus", () => {
+  it("moves one step forward", () => {
+    expect(neighborStatus("inquiry", "forward")).toBe("consultation");
+    expect(neighborStatus("consultation", "forward")).toBe("retainer_paid");
+    expect(neighborStatus("retainer_paid", "forward")).toBe("awaiting_event");
+    expect(neighborStatus("awaiting_event", "forward")).toBe(
+      "gallery_delivered",
+    );
+  });
+
+  it("moves one step back", () => {
+    expect(neighborStatus("gallery_delivered", "back")).toBe("awaiting_event");
+    expect(neighborStatus("awaiting_event", "back")).toBe("retainer_paid");
+    expect(neighborStatus("retainer_paid", "back")).toBe("consultation");
+    expect(neighborStatus("consultation", "back")).toBe("inquiry");
+  });
+
+  it("returns null at the ends", () => {
+    expect(neighborStatus("inquiry", "back")).toBe(null);
+    expect(neighborStatus("gallery_delivered", "forward")).toBe(null);
+  });
+});
 
 describe("project status", () => {
   it("lists the 5 statuses in the same order as the database enum", () => {

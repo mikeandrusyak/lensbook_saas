@@ -2,11 +2,13 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { projectIdSchema } from "@/lib/validation/project";
+import { AccessLink } from "./access-link";
 import { EditProjectForm } from "./edit-form";
 
 type ProjectRow = {
   event_date: string | null;
   location: string | null;
+  access_token_hash: string | null;
   clients: { names: string; email: string } | null;
 };
 
@@ -34,10 +36,11 @@ export default async function EditProjectPage({
 
   // No photographer filter on purpose: RLS returns only the caller's own project.
   // Someone else's project and a missing one both give no row, hence the same 404.
-  // No token hash and no gallery link: this page does not need them.
+  // The token hash is read only to know whether a link exists. It stays on the
+  // server: only a yes/no goes to the browser. No gallery link is selected.
   const { data, error } = await supabase
     .from("projects")
-    .select("event_date, location, clients(names, email)")
+    .select("event_date, location, access_token_hash, clients(names, email)")
     .eq("id", projectId.data)
     .maybeSingle();
   const project = data as unknown as ProjectRow | null;
@@ -56,6 +59,10 @@ export default async function EditProjectPage({
           eventDate: project.event_date ?? "",
           location: project.location ?? "",
         }}
+      />
+      <AccessLink
+        projectId={projectId.data}
+        hasLink={project.access_token_hash !== null}
       />
       <p className="text-sm text-foreground/70">
         <Link href="/dashboard" className="font-medium underline">

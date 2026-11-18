@@ -132,3 +132,55 @@
 - **What I checked and understood:** _to fill in by me._
 - **Security:** pgTAP: A edits own project; B's attempt on A's project fails with the same error as a non-existent id and leaves A's rows unchanged (checked as table owner, otherwise RLS would hide them); `anon` cannot execute the function (`anon_privileges.test.sql` green); the status is untouched by editing. The id is validated as uuid on the page and in the action; the page query has no photographer filter (RLS decides); generic error texts, nothing logged; no token hash or gallery link selected. Only fictional data; no service_role key; `.env.local` not read; no new packages.
 - **Requirement changes:** none.
+
+---
+
+## Step 4.6: change the status by one step (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (forged input, status integrity): the status must move only one step forward or back, and the UI must not be the only guard. Complexity: three layers that all know the rule (UI buttons, server action, database trigger). Know-how: submit buttons that send their own name and value, `revalidatePath`.
+- **Prompts:** Plan mode; approved a three-part plan (pure function, action, buttons) with "go"; asked for words ("Back"/"Next") instead of arrows; checked the buttons in the browser.
+- **What the agent did:** `neighborStatus` (3 tests first, red then green; 77 tests in total); server action `changeStatus` (validates `projectId` as uuid and `direction` as enum, reads the current status from the database, picks the neighbour, updates, generic errors, `revalidatePath`); client component `StatusControls` (Back/Next, disabled at the ends and while sending, `aria-label` with the target status); buttons added to every row of the project list. No new packages, no schema change.
+- **What I fixed or rejected:**
+  - The action does not take the current status from the form: a user could fake it. It is read from the database; the trigger from step 2.4 checks the rule again.
+  - No separate SQL function and no new pgTAP test: it is one table and one statement, and the trigger is already covered by `project_status_trigger.test.sql`.
+  - Known limit: "Next" on `Awaiting Event` always fails for now (`Gallery Delivered` needs a gallery link, which has no input yet); the user sees the generic error. Phase 7 adds the link field and a clearer message.
+- **What I checked and understood:** _to fill in by me._
+- **Security:** forged `projectId` or `direction` gives the same generic error; someone else's project is invisible through RLS; skipping a step is rejected by the trigger; no `error.message` shown or logged; no personal data in the response. Manual check in the browser: stepping forward and back, buttons disabled at the ends, error on `Awaiting Event` → `Gallery Delivered`. Only fictional data; no service_role key; `.env.local` not read; no new packages.
+- **Requirement changes:** none.
+
+---
+
+## Step 4.7: booking token (`lib/tokens.ts`, "Booking link") (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (secrets, data leak): the token opens a page with the couple's data, so it must be unguessable and must not be recoverable from a leaked database; it must not appear in logs or URL parameters. Complexity: the hash is computed in two places (Node now, Postgres later in `get_booking`) and must match. Know-how: `node:crypto`, base64url, `bytea` through PostgREST.
+- **Prompts:** Plan mode; agent compared two options (generate in Next vs in Postgres) and recommended Next; I chose option A ("варіант А") and accepted narrowing step 4.8; approved with "go"; checked the page and the database by hand.
+- **What the agent did:** `lib/tokens.ts` with `generateToken` (32 bytes, base64url, 43 characters), `hashToken` (SHA-256) and `hashToPostgres` (`\x` + hex); 6 tests first, red then green, including the known SHA-256 vector for "abc" (83 tests in total). Server action `createAccessLink` (validates the id, stores only the hash, returns the token once). Client component `AccessLink` ("Create link" / "New link", token in React state only, "Copy" button). The project page reads the hash only to learn whether a link exists. No new packages.
+- **What I fixed or rejected:**
+  - Rejected generating the token inside Postgres: the token would travel back from the database, and `pgcrypto` lives in the `extensions` schema, which is awkward with an empty `search_path`.
+  - An `update` on someone else's project raises no error under RLS, it just touches no row. The action therefore checks that a row came back (`.select("id")`); otherwise it would show a token that opens nothing.
+  - The page now selects `access_token_hash` (earlier steps selected no token data on purpose). It stays on the server and only a yes/no goes to the browser.
+- **What I checked and understood:** _to fill in by me._
+- **Security:** only the SHA-256 hash is stored (32 bytes, checked in the SQL Editor: the stored value differs from the token on screen); the token is neither stored, logged nor put into a URL parameter, and it is gone after a reload; a new token replaces the hash; someone else's project gives a 404 and no link; generic error texts. Not yet proven: that an old token stops working end to end, because `get_booking` does not exist before Phase 6. Only fictional data; no service_role key; `.env.local` not read; no new packages.
+- **Requirement changes:** step 4.8 narrowed (confirmation before a new link; the end-to-end check of the old token moves to Phase 6). Recorded in `docs/plan.md`.
+
+---
+
+## Step 4.8: confirmation before a new booking link (18.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security and data integrity: replacing the token silently breaks a link that was already sent to the couple. Know-how: local React state for a two-step action without a dialog package.
+- **Prompts:** Plan mode; approved a two-step button instead of a modal ("Cancel" / "Yes, create new link"); checked the flow and the database by hand.
+- **What the agent did:** Changed `AccessLink`: with no link the button creates one directly; with a link, "New link" first shows a warning and a confirm button. After a new token the "Copied" label resets. No new packages.
+- **What I fixed or rejected:** Rejected the shadcn dialog: it needs `radix-ui` (a new package) for one warning. Rejected a `window.confirm`: it cannot be styled and is hard to test.
+- **What I checked and understood:** _to fill in by me._
+- **Security:** Cancel leaves the stored hash unchanged (checked in the SQL Editor); a confirmed new link changes it. **Not proven here:** that the old token stops working end to end, because `get_booking` does not exist before Phase 6; recorded as a "Done when" item of Phase 6. No new packages; only fictional data.
+- **Requirement changes:** none beyond the narrowing recorded in step 4.7.
+
+---
+
+## Phase 4 summary: four axes (DRAFT, to confirm)
+
+- **Complexity:** medium. Three layers know the status rule (buttons, server action, database trigger). Two tables must change together, so `create_project` and `update_project` are single functions.
+- **Know-how:** new to me: `security invoker` functions with an empty `search_path`, server actions with `useActionState`, `bytea` through PostgREST, and hashing a token in Node and Postgres identically.
+- **Security:** critical. Personal data of couples, a secret token, and an id taken from the URL (IDOR). Protections: RLS on every call, ids validated as uuid, generic errors, only the hash stored, tests with two users.
+- **Liability:** moderate for a prototype with fictional data; in production high (personal data of clients, a link that gives access to their booking).
+- **Where the agent or I made mistakes:** wrong demo SQL (status trigger), an `@/` alias missing in Vitest, a date field replaced without asking, a stale dev server that looked like a code bug.

@@ -263,15 +263,24 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 | 4.3 | zod schemas for client and project (test first) | ✅ Done 18.11.2026 |
 | 4.4 | `create_project` SQL function (pgTAP first), server action, form, "New project" button | ✅ Done 18.11.2026 |
 | 4.5 | `update_project` SQL function (pgTAP first), `/projects/[id]` page, action, shared form fields | ✅ Done 18.11.2026 |
-| 4.6 | Status change by one step (forward/back) | ⬜ |
-| 4.7 | Token generation (pgTAP first), link shown once | ⬜ |
-| 4.8 | Token regeneration, old token stops working, protocol entry | ⬜ |
+| 4.6 | `neighborStatus` (test first), `changeStatus` action, Back/Next buttons in the list | ✅ Done 18.11.2026 |
+| 4.7 | `lib/tokens.ts` (test first), `createAccessLink` action, "Booking link" section, link shown once | ✅ Done 18.11.2026 |
+| 4.8 | Confirmation before a new link, record that "old token stops working" is proven end to end in Phase 6 (`get_booking`), protocol entry | ✅ Done 18.11.2026 |
  
 - List ordered by `event_date` with a status badge and days until the event.
 - Create and edit a project with a client; change status by one step (the rule is enforced by the database).
 - Token generation: the link is shown once; "new link" regenerates.
 - **Done when:** a photographer sees only their own projects; a status cannot be skipped; the old token stops working after regeneration.
 - **For the protocol:** assessment along the four axes for this scenario.
+
+**Phase 4: done (18.11.2026), with one open point.** Notes:
+- "Done when": a photographer sees only their own projects (checked with two users); a status cannot be skipped (database trigger, tested in step 2.4, and the UI offers only neighbours). **Open:** that the old token stops working after "New link" is proven only up to the database (the hash is replaced); the end-to-end check needs `get_booking` and is a "Done when" item of Phase 6.
+- Database functions `create_project` and `update_project` are `security invoker` with an empty `search_path`; `anon` cannot execute them (pgTAP and `anon_privileges.test.sql`).
+- Known limit: "Next" on `Awaiting Event` fails until Phase 7 adds the gallery link field.
+- Still open from Phase 3: wire `?next=` with `safeRedirectPath` (now there are several protected pages).
+- Not yet decided: generated database types (`supabase gen types`) instead of the manual casts (`as unknown as`) in the dashboard and the project page.
+- The date field shows the browser's language (`дд.мм.рррр`); the page cannot change it.
+- Entries in `docs/protocol.md`: steps 4.1–4.8. The field "What I checked and understood" is left for you to fill in.
 ### Phase 5. Service packages (Must 6)
  
 - List, add, edit; hiding (`is_active`) instead of deleting.
@@ -281,7 +290,7 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - `/book/[token]`: `get_booking`, package selection, names and location, typed signature and consent, `submit_booking`, thank-you page.
 - An invalid and a non-existent token give the same response.
 - `Referrer-Policy: no-referrer`, `Cache-Control: no-store`, token kept out of logs; zod with length limits.
-- **Done when:** resubmitting does not duplicate the record; an invalid token is indistinguishable from a non-existent one; a name containing HTML tags is not executed.
+- **Done when:** resubmitting does not duplicate the record; an invalid token is indistinguishable from a non-existent one; a token replaced by "New link" (step 4.7) stops working (carried over from step 4.8); a name containing HTML tags is not executed.
 ### Phase 7. Deposit and gallery (Must 8, 9)
  
 - A "Deposit received" button moves the project to `Retainer Paid`.
