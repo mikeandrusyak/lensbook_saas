@@ -27,6 +27,5 @@ export async function login(
     return { error: "Email or password is incorrect." };
   }
 
-  // TEMPORARY: the dashboard comes in step 3.4, so go to the start page.
-  redirect("/");
+  redirect("/dashboard");
 }

@@ -29,6 +29,5 @@ export async function signUp(
     return { error: "Could not create the account. Please try again." };
   }
 
-  // TEMPORARY: the dashboard does not exist yet (Phase 4), so go to the start page.
-  redirect("/");
+  redirect("/dashboard");
 }
