@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { daysUntil } from "@/lib/projects/days-until";
 import { formatDaysUntil } from "@/lib/projects/format-days-until";
 import type { ProjectStatus } from "@/lib/projects/status";
@@ -42,11 +43,16 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
           <p className="text-foreground/70">Signed in as {user.email}.</p>
         </div>
-        <form action={logout}>
-          <Button type="submit" variant="outline">
-            Sign out
-          </Button>
-        </form>
+        <div className="flex items-center gap-2">
+          <Link href="/projects/new" className={buttonVariants()}>
+            New project
+          </Link>
+          <form action={logout}>
+            <Button type="submit" variant="outline">
+              Sign out
+            </Button>
+          </form>
+        </div>
       </header>
 
       {error ? (
