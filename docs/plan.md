@@ -234,6 +234,25 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - Supabase Auth (email + password), `@supabase/ssr`, middleware, logout.
 - The service-role key is not used and not copied into the VM.
 - Login validation via zod.
+
+| Step | Content | Status |
+|---|---|---|
+| 3.0 | Sign-up page + zod schemas | ✅ Done |
+| 3.1 | `login` action | ✅ Done 18.11.2026 |
+| 3.2 | `/login` page | ✅ Done 18.11.2026 |
+| 3.3 | `safeRedirectPath` (test first) | ✅ Done 18.11.2026 |
+| 3.4 | `/dashboard` placeholder with `getUser()` | ✅ Done 18.11.2026 |
+| 3.5 | `logout` action and button | ✅ Done 18.11.2026 |
+| 3.6 | `decideAccess` (test first) + `proxy.ts` | ✅ Done 18.11.2026 |
+| 3.7 | "Sign in" link on the start page | ✅ Done 18.11.2026 |
+| 3.8 | Manual "Done when" check, CI fixes, protocol entry | ✅ Done 18.11.2026 |
+
+**Phase 3: done (18.11.2026).** Notes:
+- Default deny: only `/`, `/login`, `/signup` and `/book/*` are public (`lib/auth/routes.ts`).
+- `?next=` is not wired yet: `safeRedirectPath` is ready, connect it in Phase 4 when there are several protected pages. `app/page.tsx` still has the temporary status badges (remove in Phase 4).
+- `/dashboard` is a placeholder; the real one comes in Phase 4.
+- Accepted dev-only advisories in `osv-scanner.toml` (`minimatch`, `picomatch`), re-check before 03.01.2027. The `audit` CI job checks production dependencies only (`--omit=dev`).
+- Entry in `docs/protocol.md`: steps 3.1–3.8. The field "What I checked and understood" is left for you to fill in.
 - **Done when:** an unauthenticated user cannot reach protected routes; the session survives a reload; a second user sees an empty database with three packages.
 ### Phase 4. Projects and clients (Must 5)
  
