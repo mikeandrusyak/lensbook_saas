@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import { logout } from "../actions";
 
 // TEMPORARY placeholder: the real dashboard (projects list) comes in Phase 4.
 export default async function DashboardPage() {
@@ -17,6 +19,11 @@ export default async function DashboardPage() {
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-4 px-4">
       <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
       <p className="text-foreground/70">Signed in as {user.email}.</p>
+      <form action={logout}>
+        <Button type="submit" variant="outline">
+          Sign out
+        </Button>
+      </form>
     </main>
   );
 }
