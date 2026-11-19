@@ -1,5 +1,5 @@
 begin;
-select plan(13);
+select plan(17);
 
 -- The SQL Editor shows only the last result set, so every assertion is stored here
 -- and printed together at the end. The table lives in this transaction only.
@@ -75,10 +75,11 @@ insert into pg_temp.results select is(
   'only the 2 active packages of this photographer are returned'
 );
 
--- 7. Nothing beyond what the booking page needs: no email, no gallery link, no ids of the owner.
+-- 7. Nothing beyond what the booking page needs: no email, no ids of the owner.
+--    gallery_url is always present, but empty until Gallery Delivered (checks 13-16).
 insert into pg_temp.results select is(
   (select array_agg(k order by k) from jsonb_object_keys(public.get_booking('fictional-test-token-a')) k),
-  array['already_signed', 'event_date', 'location', 'names', 'packages'],
+  array['already_signed', 'event_date', 'gallery_url', 'location', 'names', 'packages'],
   'the answer has only the expected keys'
 );
 
@@ -129,6 +130,43 @@ insert into pg_temp.results select is(
   public.get_booking('fictional-test-token-a-new') ->> 'names',
   'Anna & Ben',
   'after "New link" the new token works'
+);
+
+-- 13. The project already has a gallery link, but it is still an inquiry:
+--     the couple must not see the link yet (step 7.5).
+insert into pg_temp.results select ok(
+  public.get_booking('fictional-test-token-a-new') -> 'gallery_url' = 'null'::jsonb,
+  'no gallery link in status inquiry, even though one is stored'
+);
+
+-- Walk the status one step at a time up to awaiting_event (the trigger allows one step).
+reset role;
+update public.projects set status = 'consultation'   where id = '00000000-0000-0000-0000-000000000a11';
+update public.projects set status = 'retainer_paid'  where id = '00000000-0000-0000-0000-000000000a11';
+update public.projects set status = 'awaiting_event' where id = '00000000-0000-0000-0000-000000000a11';
+set local role anon;
+
+-- 14. One step before delivery the link is still hidden
+insert into pg_temp.results select ok(
+  public.get_booking('fictional-test-token-a-new') -> 'gallery_url' = 'null'::jsonb,
+  'no gallery link in status awaiting_event'
+);
+
+reset role;
+update public.projects set status = 'gallery_delivered' where id = '00000000-0000-0000-0000-000000000a11';
+set local role anon;
+
+-- 15. In Gallery Delivered the couple gets the link
+insert into pg_temp.results select is(
+  public.get_booking('fictional-test-token-a-new') ->> 'gallery_url',
+  'https://gallery.example.test/secret',
+  'the gallery link is returned in status gallery_delivered'
+);
+
+-- 16. The old token still opens nothing, also not the delivered link
+insert into pg_temp.results select ok(
+  public.get_booking('fictional-test-token-a') is null,
+  'the old token does not reveal the gallery link'
 );
 
 -- finish() returns rows only when something is wrong (failed or missing tests).
