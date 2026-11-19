@@ -29,21 +29,21 @@ export default async function DashboardPage() {
   const today = new Date();
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 py-10">
-      <header className="flex items-center justify-between gap-4">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-10">
+      <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-foreground/70">Signed in as {user.email}.</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
+          <p className="text-sm text-muted">Signed in as {user.email}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/projects/new" className={buttonVariants()}>
             New project
           </Link>
-          <Link href="/packages" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/packages" className={buttonVariants({ variant: "ghost" })}>
             Packages
           </Link>
           <form action={logout}>
-            <Button type="submit" variant="outline">
+            <Button type="submit" variant="ghost">
               Sign out
             </Button>
           </form>
@@ -54,29 +54,32 @@ export default async function DashboardPage() {
         // Generic text on purpose: the raw error message is not shown or logged.
         <p role="alert">Could not load projects. Please try again.</p>
       ) : projects.length === 0 ? (
-        <p className="text-foreground/70">No projects yet.</p>
+        <p className="rounded-xl border border-dashed border-input p-8 text-center text-muted">
+          No projects yet. Create your first one with “New project”.
+        </p>
       ) : (
         <ul className="flex flex-col gap-3">
           {projects.map((project) => (
             <li
               key={project.id}
-              className="flex items-center justify-between gap-4 rounded-lg border border-border p-4"
+              className="relative flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-px hover:border-input hover:shadow-md"
             >
               <div className="min-w-0">
                 <Link
                   href={`/projects/${project.id}`}
-                  className="block truncate font-medium underline-offset-4 hover:underline"
+                  // The ::after layer stretches the link over the whole card; the controls sit above it.
+                  className="block truncate text-base font-semibold after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-ring"
                 >
                   {project.clients?.names ?? "Unknown client"}
                 </Link>
-                <p className="text-sm text-foreground/70">
+                <p className="mt-0.5 text-sm text-muted">
                   {project.event_date
                     ? `${project.event_date} (${formatDaysUntil(daysUntil(project.event_date, today))})`
                     : "No date yet"}
                   {project.location ? ` · ${project.location}` : ""}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-2">
+              <div className="relative z-10 flex flex-col items-end gap-2">
                 <StatusBadge status={project.status} />
                 <StatusControls projectId={project.id} status={project.status} />
               </div>

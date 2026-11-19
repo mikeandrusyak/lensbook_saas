@@ -33,27 +33,33 @@ export function BookingForm({
 
   if (state && "done" in state) {
     return (
-      <p role="status" className="rounded-lg border border-border p-4">
+      <p
+        role="status"
+        className="rounded-2xl border border-border bg-card p-6 shadow-sm"
+      >
         Thank you! Your booking is signed. Your photographer will be in touch.
       </p>
     );
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form
+      action={formAction}
+      className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm"
+    >
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-1 text-lg font-medium">Choose a package</legend>
         {packages.map((pkg) => (
           <label
             key={pkg.id}
-            className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4"
+            className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4 transition-colors hover:border-input has-[:checked]:border-primary has-[:checked]:bg-accent/50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring"
           >
             <input
               type="radio"
               name="packageId"
               value={pkg.id}
               required
-              className="mt-1"
+              className="mt-1 accent-primary"
             />
             <span className="flex-1">
               <span className="flex items-baseline justify-between gap-4">
@@ -63,7 +69,7 @@ export function BookingForm({
                   CHF {pkg.price.toFixed(2)}
                 </span>
               </span>
-              <span className="block text-sm text-foreground/70">
+              <span className="block text-sm text-muted">
                 {pkg.duration_hours} h
                 {pkg.description ? ` · ${pkg.description}` : ""}
               </span>
@@ -108,7 +114,12 @@ export function BookingForm({
         />
       </div>
       <label className="flex items-start gap-3 text-sm">
-        <input type="checkbox" name="consent" required className="mt-1" />
+        <input
+          type="checkbox"
+          name="consent"
+          required
+          className="mt-1 accent-primary"
+        />
         <span>
           I confirm the booking of the chosen package, and that typing my name
           above counts as my signature.
@@ -120,7 +131,7 @@ export function BookingForm({
           {state.error}
         </p>
       )}
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" size="lg" disabled={pending}>
         {pending ? "Signing…" : "Sign booking"}
       </Button>
     </form>

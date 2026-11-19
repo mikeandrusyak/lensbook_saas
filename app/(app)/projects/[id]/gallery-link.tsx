@@ -20,7 +20,7 @@ export function GalleryLink({
   >(saveGalleryLink, null);
 
   return (
-    <form action={formAction} className="flex flex-col gap-2">
+    <form action={formAction} className="flex flex-col gap-2 border-t border-border pt-6">
       <input type="hidden" name="projectId" value={projectId} />
       <label htmlFor="galleryUrl" className="text-sm font-medium">
         Gallery link (optional)
@@ -35,7 +35,7 @@ export function GalleryLink({
         maxLength={2000}
         defaultValue={galleryUrl ?? ""}
       />
-      <p className="text-sm text-foreground/70">
+      <p className="text-sm text-muted">
         Only https:// links. Required before the status Gallery Delivered.
       </p>
       {state && "error" in state && (

@@ -37,7 +37,7 @@ export function StatusControls({
           type="submit"
           name="direction"
           value="back"
-          variant="outline"
+          variant="ghost"
           size="sm"
           disabled={pending || !back}
           aria-label={back ? `Move back to ${statusLabel(back)}` : "Back"}

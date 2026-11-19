@@ -23,11 +23,11 @@ export default async function PackagesPage() {
   const packages = data ?? [];
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 py-10">
-      <header className="flex items-center justify-between gap-4">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-10">
+      <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Packages</h1>
-          <p className="text-foreground/70">
+          <h1 className="text-3xl font-semibold tracking-tight">Packages</h1>
+          <p className="text-muted">
             What couples can choose on the booking page.
           </p>
         </div>
@@ -37,7 +37,7 @@ export default async function PackagesPage() {
           </Link>
           <Link
             href="/dashboard"
-            className={buttonVariants({ variant: "outline" })}
+            className={buttonVariants({ variant: "ghost" })}
           >
             Back to projects
           </Link>
@@ -48,19 +48,22 @@ export default async function PackagesPage() {
         // Generic text on purpose: the raw error message is not shown or logged.
         <p role="alert">Could not load packages. Please try again.</p>
       ) : packages.length === 0 ? (
-        <p className="text-foreground/70">No packages yet.</p>
+        <p className="rounded-xl border border-dashed border-input p-8 text-center text-muted">
+          No packages yet. Add one with “New package”.
+        </p>
       ) : (
         <ul className="flex flex-col gap-3">
           {packages.map((pkg) => (
             <li
               key={pkg.id}
-              className={`rounded-lg border border-border p-4 ${pkg.is_active ? "" : "opacity-60"}`}
+              className={`relative rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-px hover:border-input hover:shadow-md ${pkg.is_active ? "" : "opacity-60"}`}
             >
               <div className="flex items-baseline justify-between gap-4">
-                <h2 className="truncate font-medium">
+                <h2 className="truncate text-base font-semibold">
                   <Link
                     href={`/packages/${pkg.id}`}
-                    className="underline-offset-4 hover:underline"
+                    // The ::after layer makes the whole card clickable.
+                    className="after:absolute after:inset-0 after:content-['']"
                   >
                     {pkg.name}
                     {pkg.is_active ? "" : " (Hidden)"}
@@ -69,7 +72,7 @@ export default async function PackagesPage() {
                 {/* numeric columns arrive as numbers; toFixed keeps two decimals */}
                 <p className="shrink-0 font-medium">CHF {pkg.price.toFixed(2)}</p>
               </div>
-              <p className="text-sm text-foreground/70">
+              <p className="mt-0.5 text-sm text-muted">
                 {pkg.duration_hours} h
                 {pkg.description ? ` · ${pkg.description}` : ""}
               </p>

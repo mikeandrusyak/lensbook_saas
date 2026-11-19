@@ -16,19 +16,21 @@ describe("contrastRatio", () => {
 });
 
 // These values are copied by hand from app/globals.css: keep them in sync.
-const background: Oklch = [0.985, 0.005, 85];
-const foreground: Oklch = [0.24, 0.01, 60];
-const primary: Oklch = [0.3, 0.01, 60];
-const primaryForeground: Oklch = [0.985, 0, 0];
-const accent: Oklch = [0.92, 0.03, 85];
-const link: Oklch = [0.5, 0.09, 215];
+const background: Oklch = [0.972, 0.012, 80];
+const card: Oklch = [0.99, 0.006, 80];
+const foreground: Oklch = [0.26, 0.03, 50];
+const muted: Oklch = [0.48, 0.03, 55];
+const primary: Oklch = [0.52, 0.13, 40];
+const primaryForeground: Oklch = [0.985, 0.005, 80];
+const accent: Oklch = [0.93, 0.025, 70];
+const link: Oklch = [0.52, 0.13, 40];
 
 const status = {
-  inquiry: { bg: [0.93, 0.01, 80], fg: [0.35, 0.01, 70] },
-  consultation: { bg: [0.92, 0.04, 250], fg: [0.35, 0.1, 250] },
-  retainerPaid: { bg: [0.93, 0.07, 80], fg: [0.4, 0.09, 70] },
-  awaitingEvent: { bg: [0.92, 0.04, 300], fg: [0.36, 0.11, 300] },
-  galleryDelivered: { bg: [0.92, 0.05, 150], fg: [0.36, 0.09, 150] },
+  inquiry: { bg: [0.93, 0.025, 80], fg: [0.38, 0.03, 70] },
+  consultation: { bg: [0.92, 0.03, 190], fg: [0.36, 0.05, 190] },
+  retainerPaid: { bg: [0.93, 0.07, 85], fg: [0.4, 0.08, 70] },
+  awaitingEvent: { bg: [0.92, 0.04, 25], fg: [0.4, 0.1, 30] },
+  galleryDelivered: { bg: [0.92, 0.05, 120], fg: [0.36, 0.07, 120] },
 } satisfies Record<string, { bg: Oklch; fg: Oklch }>;
 
 // WCAG AA for normal text
@@ -45,6 +47,15 @@ describe("palette contrast (WCAG AA)", () => {
 
   it("text on accent (hover background)", () => {
     expect(contrastRatio(foreground, accent)).toBeGreaterThanOrEqual(AA);
+  });
+
+  it("text on card", () => {
+    expect(contrastRatio(foreground, card)).toBeGreaterThanOrEqual(AA);
+  });
+
+  it("muted text on background and on card", () => {
+    expect(contrastRatio(muted, background)).toBeGreaterThanOrEqual(AA);
+    expect(contrastRatio(muted, card)).toBeGreaterThanOrEqual(AA);
   });
 
   it("link on background", () => {

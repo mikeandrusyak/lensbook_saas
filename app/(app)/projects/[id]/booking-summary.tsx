@@ -15,9 +15,9 @@ export function BookingSummary({
 }) {
   if (!contract) {
     return (
-      <section className="flex flex-col gap-1 rounded-lg border border-border p-4">
+      <section className="flex flex-col gap-1 rounded-xl bg-secondary p-4">
         <h2 className="font-medium">Booking</h2>
-        <p className="text-sm text-foreground/70">Not signed yet.</p>
+        <p className="text-sm text-muted">Not signed yet.</p>
       </section>
     );
   }
@@ -26,20 +26,20 @@ export function BookingSummary({
   const snapshot = packageSnapshotSchema.safeParse(contract.package_snapshot);
 
   return (
-    <section className="flex flex-col gap-1 rounded-lg border border-border p-4">
+    <section className="flex flex-col gap-1 rounded-xl bg-secondary p-4">
       <h2 className="font-medium">Booking signed</h2>
       {/* React escapes the text, so a signature with HTML tags is shown, not run */}
       <p className="text-sm">
         Signed by {contract.signer_name} on {contract.signed_at.slice(0, 10)}
       </p>
       {snapshot.success ? (
-        <p className="text-sm text-foreground/70">
+        <p className="text-sm text-muted">
           {snapshot.data.name} · CHF {snapshot.data.price.toFixed(2)} ·{" "}
           {snapshot.data.duration_hours} h
           {snapshot.data.description ? ` · ${snapshot.data.description}` : ""}
         </p>
       ) : (
-        <p className="text-sm text-foreground/70">
+        <p className="text-sm text-muted">
           Package details unavailable.
         </p>
       )}

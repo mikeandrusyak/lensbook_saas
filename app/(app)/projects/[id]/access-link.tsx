@@ -40,7 +40,7 @@ export function AccessLink({
   return (
     <section className="flex flex-col gap-3 border-t border-border pt-6">
       <h2 className="text-lg font-semibold tracking-tight">Booking link</h2>
-      <p className="text-sm text-foreground/70">
+      <p className="text-sm text-muted">
         {exists
           ? "A link exists. The link cannot be shown again, and a new link makes the old one stop working."
           : "No link yet. Create one to send to the couple."}

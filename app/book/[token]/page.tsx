@@ -45,11 +45,14 @@ export default async function BookingPage({
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 py-10">
+      <p className="text-center text-lg font-semibold tracking-tight text-primary">
+        Lensbook
+      </p>
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-3xl font-semibold tracking-tight">
           Booking for {booking.names}
         </h1>
-        <p className="text-foreground/70">
+        <p className="text-muted">
           {booking.event_date ?? "Date to be agreed"}
           {booking.location ? ` · ${booking.location}` : ""}
         </p>
@@ -60,14 +63,14 @@ export default async function BookingPage({
           contains the token (the Referrer-Policy header says the same).
           noopener: the new tab gets no handle back to this page. */}
       {booking.gallery_url && (
-        <section className="flex flex-col gap-2">
+        <section className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Your gallery</h2>
           <p>
             <a
               href={booking.gallery_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium underline"
+              className="font-medium text-link underline-offset-4 hover:underline"
             >
               Open your gallery
             </a>
@@ -76,9 +79,14 @@ export default async function BookingPage({
       )}
 
       {booking.already_signed ? (
-        <p>This booking is already signed. Thank you!</p>
+        <p
+          role="status"
+          className="rounded-2xl border border-border bg-card p-6 shadow-sm"
+        >
+          This booking is already signed. Thank you!
+        </p>
       ) : booking.packages.length === 0 ? (
-        <p className="text-foreground/70">
+        <p className="text-muted">
           No packages are available right now. Please contact your photographer.
         </p>
       ) : (
