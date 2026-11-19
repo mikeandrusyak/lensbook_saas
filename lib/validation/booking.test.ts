@@ -122,6 +122,7 @@ const view = {
   names: "Anna & Ben",
   event_date: "2027-05-15",
   location: "Lake venue",
+  gallery_url: null,
   already_signed: false,
   packages: [
     {
@@ -156,6 +157,31 @@ describe("bookingViewSchema", () => {
     expect(
       bookingViewSchema.safeParse({ ...view, packages: [{ id: "x" }] }).success,
     ).toBe(false);
+  });
+
+  it("accepts an https gallery link (status Gallery Delivered)", () => {
+    const withLink = {
+      ...view,
+      gallery_url: "https://gallery.example.com/anna-and-ben",
+    };
+    expect(bookingViewSchema.parse(withLink)).toEqual(withLink);
+  });
+
+  it("rejects a gallery link that is not https, so it is never rendered as a link", () => {
+    for (const gallery_url of [
+      "http://gallery.example.com",
+      "javascript:alert(1)",
+    ]) {
+      expect(
+        bookingViewSchema.safeParse({ ...view, gallery_url }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("rejects an answer without the gallery_url key (old get_booking)", () => {
+    const withoutKey: Record<string, unknown> = { ...view };
+    delete withoutKey.gallery_url;
+    expect(bookingViewSchema.safeParse(withoutKey).success).toBe(false);
   });
 });
 
