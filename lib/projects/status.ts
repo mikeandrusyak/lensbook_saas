@@ -49,6 +49,15 @@ export function neighborStatus(
   return neighbor ?? null;
 }
 
+// Visible text of the "forward" button. Moving from Consultation to Retainer Paid means
+// the photographer confirms by hand that the deposit arrived (no real payments in scope),
+// so the button says so. It is the same one-step move; only the text differs.
+export function forwardButtonText(status: ProjectStatus): string {
+  return neighborStatus(status, "forward") === "retainer_paid"
+    ? "Deposit received"
+    : "Next";
+}
+
 export function statusLabel(status: ProjectStatus): string {
   return STATUS_INFO[status].label;
 }

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { changeStatus, type ChangeStatusState } from "@/app/(app)/status-actions";
 import { Button } from "@/components/ui/button";
 import {
+  forwardButtonText,
   neighborStatus,
   statusLabel,
   type ProjectStatus,
@@ -25,6 +26,7 @@ export function StatusControls({
 
   const back = neighborStatus(status, "back");
   const forward = neighborStatus(status, "forward");
+  const forwardText = forwardButtonText(status);
 
   return (
     <form action={formAction} className="flex flex-col items-end gap-1">
@@ -49,11 +51,15 @@ export function StatusControls({
           variant="outline"
           size="sm"
           disabled={pending || !forward}
+          // The accessible name starts with the visible text, so voice control
+          // ("click Deposit received") finds the button.
           aria-label={
-            forward ? `Move forward to ${statusLabel(forward)}` : "Next"
+            forward
+              ? `${forwardText}: move forward to ${statusLabel(forward)}`
+              : forwardText
           }
         >
-          Next
+          {forwardText}
         </Button>
       </div>
       {state?.error && (
