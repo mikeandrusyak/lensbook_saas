@@ -52,7 +52,8 @@ export async function changeStatus(
     return { error: ERROR };
   }
 
-  // The project list is rendered on the server: ask Next to render it again.
+  // The list and the project page are rendered on the server: ask Next to render them again.
   revalidatePath("/dashboard");
+  revalidatePath(`/projects/${projectId.data}`);
   return null;
 }

@@ -20,7 +20,7 @@ export function GalleryLink({
   >(saveGalleryLink, null);
 
   return (
-    <form action={formAction} className="flex flex-col gap-2 border-t border-border pt-6">
+    <form action={formAction} className="flex flex-col gap-2">
       <input type="hidden" name="projectId" value={projectId} />
       <label htmlFor="galleryUrl" className="text-sm font-medium">
         Gallery link (optional)

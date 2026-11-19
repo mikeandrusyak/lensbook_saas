@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { StatusBadge } from "@/components/status-badge";
+import { StatusControls } from "@/components/status-controls";
 import { createClient } from "@/lib/supabase/server";
 import { projectIdSchema } from "@/lib/validation/project";
 import { AccessLink } from "./access-link";
@@ -37,7 +39,7 @@ export default async function EditProjectPage({
   const { data, error } = await supabase
     .from("projects")
     .select(
-      "event_date, location, access_token_hash, gallery_url, clients(names, email)",
+      "event_date, location, status, access_token_hash, gallery_url, clients(names, email)",
     )
     .eq("id", projectId.data)
     .maybeSingle();
@@ -54,27 +56,65 @@ export default async function EditProjectPage({
     .eq("project_id", projectId.data)
     .maybeSingle();
 
+  const card =
+    "flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm";
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4 py-10">
-      <div className="flex flex-col gap-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
-      <h1 className="text-2xl font-semibold tracking-tight">Edit project</h1>
-      <EditProjectForm
-        projectId={projectId.data}
-        defaults={{
-          names: project.clients.names,
-          email: project.clients.email,
-          eventDate: project.event_date ?? "",
-          location: project.location ?? "",
-        }}
-      />
-      <AccessLink
-        projectId={projectId.data}
-        hasLink={project.access_token_hash !== null}
-      />
-      <GalleryLink
-        projectId={projectId.data}
-        galleryUrl={project.gallery_url}
-      />
+    <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-6 px-4 py-10">
+      <Link
+        href="/dashboard"
+        className="text-sm font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
+      >
+        ← Projects
+      </Link>
+
+      <header>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {project.clients.names}
+        </h1>
+        <p className="text-sm text-muted">
+          {project.event_date ?? "No date yet"}
+          {project.location ? ` · ${project.location}` : ""}
+        </p>
+      </header>
+
+      <section className={card}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-col items-start gap-2">
+            <h2 className="text-lg font-semibold tracking-tight">Status</h2>
+            <StatusBadge status={project.status} />
+          </div>
+          <StatusControls projectId={projectId.data} status={project.status} />
+        </div>
+      </section>
+
+      <section className={card}>
+        <h2 className="text-lg font-semibold tracking-tight">Details</h2>
+        <EditProjectForm
+          projectId={projectId.data}
+          defaults={{
+            names: project.clients.names,
+            email: project.clients.email,
+            eventDate: project.event_date ?? "",
+            location: project.location ?? "",
+          }}
+        />
+      </section>
+
+      <div className={card}>
+        <AccessLink
+          projectId={projectId.data}
+          hasLink={project.access_token_hash !== null}
+        />
+      </div>
+
+      <div className={card}>
+        <GalleryLink
+          projectId={projectId.data}
+          galleryUrl={project.gallery_url}
+        />
+      </div>
+
       {contractError ? (
         // Generic text on purpose: the raw error message is not shown or logged.
         <p role="alert" className="text-sm">
@@ -83,12 +123,6 @@ export default async function EditProjectPage({
       ) : (
         <BookingSummary contract={contract} />
       )}
-      </div>
-      <p className="text-sm text-muted">
-        <Link href="/dashboard" className="font-medium text-link underline-offset-4 hover:underline">
-          Back to projects
-        </Link>
-      </p>
     </main>
   );
 }

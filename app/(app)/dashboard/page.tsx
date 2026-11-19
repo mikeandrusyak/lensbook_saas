@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
-import { StatusControls } from "@/components/status-controls";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { AppNav } from "@/components/app-nav";
+import { buttonVariants } from "@/components/ui/button";
 import { daysUntil } from "@/lib/projects/days-until";
 import { formatDaysUntil } from "@/lib/projects/format-days-until";
 import { createClient } from "@/lib/supabase/server";
-import { logout } from "../actions";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -30,24 +29,13 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-10">
-      <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-sm text-muted">Signed in as {user.email}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/projects/new" className={buttonVariants()}>
-            New project
-          </Link>
-          <Link href="/packages" className={buttonVariants({ variant: "ghost" })}>
-            Packages
-          </Link>
-          <form action={logout}>
-            <Button type="submit" variant="ghost">
-              Sign out
-            </Button>
-          </form>
-        </div>
+      <AppNav active="projects" email={user.email} />
+
+      <header className="flex items-center justify-between gap-4">
+        <h1 className="text-3xl font-semibold tracking-tight">Projects</h1>
+        <Link href="/projects/new" className={buttonVariants()}>
+          New project
+        </Link>
       </header>
 
       {error ? (
@@ -79,10 +67,7 @@ export default async function DashboardPage() {
                   {project.location ? ` · ${project.location}` : ""}
                 </p>
               </div>
-              <div className="relative z-10 flex flex-col items-end gap-2">
-                <StatusBadge status={project.status} />
-                <StatusControls projectId={project.id} status={project.status} />
-              </div>
+              <StatusBadge status={project.status} />
             </li>
           ))}
         </ul>

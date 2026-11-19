@@ -38,7 +38,7 @@ export function AccessLink({
   }
 
   return (
-    <section className="flex flex-col gap-3 border-t border-border pt-6">
+    <section className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold tracking-tight">Booking link</h2>
       <p className="text-sm text-muted">
         {exists

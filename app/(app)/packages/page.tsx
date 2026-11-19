@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppNav } from "@/components/app-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,24 +25,18 @@ export default async function PackagesPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-10">
-      <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+      <AppNav active="packages" email={user.email} />
+
+      <header className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Packages</h1>
-          <p className="text-muted">
+          <p className="text-sm text-muted">
             What couples can choose on the booking page.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/packages/new" className={buttonVariants()}>
-            New package
-          </Link>
-          <Link
-            href="/dashboard"
-            className={buttonVariants({ variant: "ghost" })}
-          >
-            Back to projects
-          </Link>
-        </div>
+        <Link href="/packages/new" className={buttonVariants()}>
+          New package
+        </Link>
       </header>
 
       {error ? (
@@ -70,7 +65,9 @@ export default async function PackagesPage() {
                   </Link>
                 </h2>
                 {/* numeric columns arrive as numbers; toFixed keeps two decimals */}
-                <p className="shrink-0 font-medium">CHF {pkg.price.toFixed(2)}</p>
+                <p className="shrink-0 font-medium">
+                  CHF {pkg.price.toFixed(2)}
+                </p>
               </div>
               <p className="mt-0.5 text-sm text-muted">
                 {pkg.duration_hours} h
