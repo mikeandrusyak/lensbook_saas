@@ -330,7 +330,20 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - The couple sees the link only in `Gallery Delivered`, with `rel="noopener noreferrer"`.
 - **Done when:** full demo scenario: two photographers, one couple, no data overlap.
 ### Phase 8. Hardening and submission (Must 1, 2)
- 
+
+| Step | Content | Status |
+| --- | --- | --- |
+| 8.1 | Step table for Phase 8 in this file | ✅ Done 19.11.2026 |
+| 8.2 | Global headers on all routes (`X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`), test first. `frame-ancestors 'none'` moves to the CSP in 8.3. | ✅ Done 19.11.2026 (header values by Vitest; live check with `curl` in 8.4) |
+| 8.3a | `buildCsp(nonce, isDev)`, test first | ✅ Done 19.11.2026 |
+| 8.3b | `generateNonce()` (test first) and CSP in `proxy.ts` as `Content-Security-Policy-Report-Only` | ✅ Done 19.11.2026 |
+| 8.3c | Make all pages dynamic with `await connection()` in the root layout (done 19.11.2026); check the browser console on a production build (`npm run build && npm start`); then switch `CSP_HEADER` to enforce | ✅ Done 19.11.2026 (enforce mode checked in the browser on the VM address with `CSP_ALLOW_HTTP=1`; without it the production build over http fails because of `upgrade-insecure-requests`) |
+| 8.4 | Manual abuse tests (IDOR, token guessing, XSS in names, status skipping) and `curl -D -` on headers | ✅ Done 19.11.2026 (A, B: `curl`, output checked by the agent; C, D, E reported by me) |
+| 8.5 | Final scan: `npm audit`, OSV-Scanner, gitleaks, log review (`security-check`) | ✅ Done 19.11.2026 (audit, OSV, gitleaks on history, lint, tests all clean; unused OSV ignore removed) |
+| 8.6 | README with run steps (own Supabase project, migrations, tests) | ✅ Done 19.11.2026 (README written; not yet tested from a clean clone) |
+| 8.7 | Security checklist ticked, protocol entry | ⏳ |
+| 8.8 | After submission, by hand: revoke the Supabase access token, reset the database password if needed | ⏳ |
+
 - Security headers (CSP, `X-Content-Type-Options`, `frame-ancestors`, `Referrer-Policy`).
 - Manual abuse tests: IDOR, token guessing, XSS in names, status skipping.
 - Final dependency and secret scan, log review, README, demo recording.
@@ -424,9 +437,8 @@ The report assesses the process, not the code, so we keep the protocol from day 
 | 1. Introduction, result vs. goals | in "Comprehensibility" (25%) | Summary of phases, what did not work |
 | 2. Scenario and its development (LE1) | 20% | "Scenario and requirements" field, entry about the cloud database |
 | 3. Strategy and use of AI (LE2) | 25% | Prompts, what worked, where the approach changed, model limits |
-| 4. Understanding and ownership (LE3) | 25% | "What I checked and understood"; depth-of-understanding table per component; risks and security (4.5) |
-| 5. Quality assurance | 5% | pgTAP, Vitest, scans, manual tests |
-| 6. Conclusions | in "Comprehensibility" | Summary at the end |
+| 4. Quality assurance | 5% | pgTAP, Vitest, scans, manual tests |
+| 5. Conclusions | in "Comprehensibility" | Summary at the end |
  
 For section 4.5 ("how did you ensure sensitive data did not reach the AI"), the evidence: fictional data, `.env*` denied to the agent, only the anon key in the VM, VM without access to the host system.
  

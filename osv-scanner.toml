@@ -7,12 +7,3 @@
 id = "GHSA-g3hv-75wg-m249"
 ignoreUntil = 2027-01-03
 reason = "Dev-only transitive dependency of ESLint; no compatible fixed version available"
-
-# picomatch ReDoS-type advisory (high, CVSS 8.7). Dev-only: 4.0.7 comes from
-# vite / vitest (tests), 2.3.2 from eslint-config-next via fast-glob (lint). Neither
-# ships in the production build. 4.0.7 is the latest release, so no fix exists yet.
-# Re-check when the ignore expires.
-[[IgnoredVulns]]
-id = "GHSA-fc5q-39xc-vjpf"
-ignoreUntil = 2027-01-03
-reason = "Dev-only transitive dependency (vite/vitest, eslint-config-next); no fixed version released"

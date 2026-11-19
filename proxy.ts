@@ -2,12 +2,28 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { loginRedirectUrl } from "@/lib/auth/login-url";
 import { decideAccess } from "@/lib/auth/routes";
+import { buildCsp, CSP_HEADER } from "@/lib/security/csp";
+import { generateNonce } from "@/lib/security/nonce";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 // Runs before every matched request. Two jobs: refresh the session cookies (the
 // access token expires after an hour) and apply the access rules from decideAccess.
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  // One nonce per request. It goes on the request, so Next.js puts it on its own
+  // scripts, and on the response, so the browser enforces the policy.
+  const csp = buildCsp(
+    generateNonce(),
+    process.env.NODE_ENV === "development",
+    // Local demo of a production build over http: start with CSP_ALLOW_HTTP=1.
+    process.env.CSP_ALLOW_HTTP === "1",
+  );
+  request.headers.set(CSP_HEADER, csp);
+  const withCsp = (res: NextResponse) => {
+    res.headers.set(CSP_HEADER, csp);
+    return res;
+  };
+
+  let response = withCsp(NextResponse.next({ request }));
 
   const { url, anonKey } = getSupabaseEnv();
   const supabase = createServerClient(url, anonKey, {
@@ -19,7 +35,7 @@ export async function proxy(request: NextRequest) {
         // A refreshed token must reach both the rest of this request (request
         // cookies) and the browser (response cookies).
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
+        response = withCsp(NextResponse.next({ request }));
         cookiesToSet.forEach(({ name, value, options }) =>
           response.cookies.set(name, value, options),
         );
