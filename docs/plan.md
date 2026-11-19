@@ -341,7 +341,7 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 | 8.4 | Manual abuse tests (IDOR, token guessing, XSS in names, status skipping) and `curl -D -` on headers | ✅ Done 19.11.2026 (A, B: `curl`, output checked by the agent; C, D, E reported by me) |
 | 8.5 | Final scan: `npm audit`, OSV-Scanner, gitleaks, log review (`security-check`) | ✅ Done 19.11.2026 (audit, OSV, gitleaks on history, lint, tests all clean; unused OSV ignore removed) |
 | 8.6 | README with run steps (own Supabase project, migrations, tests) | ✅ Done 19.11.2026 (README written; not yet tested from a clean clone) |
-| 8.7 | Security checklist ticked, protocol entry | ⏳ |
+| 8.7 | Security checklist ticked, protocol entry | ⏳ Checklist ticked except one item (access revoked, step 8.8); protocol entry drafted 19.11.2026 |
 | 8.8 | After submission, by hand: revoke the Supabase access token, reset the database password if needed | ⏳ |
 
 - Security headers (CSP, `X-Content-Type-Options`, `frame-ancestors`, `Referrer-Policy`).
@@ -369,15 +369,15 @@ Reviewing every agent command does not guarantee security (a package with a lett
  
 **Checklist before submission**
  
-- [ ] RLS tests green, all tables have RLS enabled, `anon` without table privileges
-- [ ] `npm audit` and OSV-Scanner without unresolved high/critical
-- [ ] gitleaks finds no secrets in the history
-- [ ] Tokens and gallery links do not appear in logs, URL parameters or `Referer`
-- [ ] Security headers enabled and verified
-- [ ] Manual abuse tests recorded in the protocol
-- [ ] Only fictional data for the demo
+- [x] RLS tests green, all tables have RLS enabled, `anon` without table privileges (pgTAP files run by me on 19.11.2026)
+- [x] `npm audit` and OSV-Scanner without unresolved high/critical (19.11.2026)
+- [x] gitleaks finds no secrets in the history (73 commits, 19.11.2026)
+- [x] Tokens and gallery links do not appear in logs, URL parameters or `Referer` (no `console.*` in the code; `next start` terminal output checked by me, no `/book/…` request lines; `Referer` by `curl`; a real host's access log is not covered)
+- [x] Security headers enabled and verified (`curl -D -` on `/login` and `/book/*`, 19.11.2026)
+- [x] Manual abuse tests recorded in the protocol (step 8.4)
+- [x] Only fictional data for the demo (reported by me)
 - [ ] No keys in the repo; Supabase access revoked or rotated
-- [ ] README with run steps (including setting up your own Supabase project, since the database is in the cloud)
+- [x] README with run steps (including setting up your own Supabase project, since the database is in the cloud); not yet tested from a clean clone
 ## Nice-to-have
  
 Taken only after the Musts and the security checklist, one at a time, following the same cycle.

@@ -279,3 +279,29 @@
   7. Second couple: own token, names, location and package, no link and no data of the first couple.
   Open: the response headers of `/book/*` were not checked with `curl` in this run (only by the Vitest header test from step 6.6).
 - **Requirement changes:** a step table for Phase 7 was added to `docs/plan.md`; the dev-only `allowedDevOrigins` setting is noted there.
+
+---
+
+## Steps 8.1–8.7: hardening and submission checks (19.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (browser-side attacks, supply chain, secrets): headers and a Content Security Policy are a second layer behind React escaping; the final scans prove the state of the dependencies and the history. Complexity: a per-request nonce makes every page dynamic and touches `proxy.ts`, which already had several response paths. Know-how: what each header does, nonce and `strict-dynamic`, Report-Only before enforce. Liability: the README and the checklist are what the lecturer will use to judge and to run the project.
+- **Prompts:** Plan mode; asked for "phase 8"; approved the step table; approved each step one at a time (8.3 split into 8.3a, 8.3b, 8.3c after the agent proposed it); pasted the browser console and `curl` output myself; ran the pgTAP files and the browser checks myself.
+- **What the agent did:**
+  - 8.1 step table for Phase 8 in `docs/plan.md`.
+  - 8.2 global headers (`X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`) in `lib/security/global-headers.ts`, listed before the `/book/*` rule in `next.config.ts` so the stricter values win there; tests first.
+  - 8.3 `buildCsp(nonce, isDev, allowHttp)` and `generateNonce()` (32 random bytes), both tested first; CSP set in `proxy.ts` on the request (so Next.js puts the nonce on its scripts) and on every response; `await connection()` in the root layout so no page is built in advance; Report-Only first, then enforce.
+  - 8.4 the manual abuse tests (below); 8.5 `security-check`; 8.6 README; this entry and the checklist in `docs/plan.md`. No new packages.
+- **What I fixed or rejected:**
+  - Report-Only showed only `Applying inline style` reports, none for scripts. Our code has no `style=`; React and Next.js set such attributes. Fix: `style-src-attr 'unsafe-inline'` (attributes only; `<style>` tags and scripts stay under the nonce). This is weaker than a fully strict `style-src`; accepted.
+  - The agent had warned that `upgrade-insecure-requests` would break a production build opened over `http://192.168.64.2:3000`; with enforce on, the page loaded without styles and scripts (`ERR_SSL_PROTOCOL_ERROR`). Fix: `CSP_ALLOW_HTTP=1` for local demos only; the default keeps the upgrade.
+  - My first `curl` run failed because I pasted the agent's placeholders (`H`, `<43 …>`) literally; the agent gave ready commands.
+  - Frame protection: the agent moved `frame-ancestors 'none'` from step 8.2 into the CSP to avoid two CSP headers; `X-Frame-Options` covers it until then.
+  - Unused entry `GHSA-fc5q-39xc-vjpf` removed from `osv-scanner.toml` (OSV reported it as unused); the remaining entry (`minimatch`, dev only) stays until 2027-01-03.
+- **Security:**
+  - Headers checked with `curl -D -`: `/login` has the CSP with a nonce, `nosniff`, `X-Frame-Options: DENY`, `strict-origin-when-cross-origin`, no `X-Powered-By`; `/book/<unknown>` gives 404 with `Referrer-Policy: no-referrer`, `Cache-Control: no-store`, `X-Robots-Tag` (this also shows the order of the two header rules works). Nonces differ between requests. This closes the open point from step 7.7.
+  - Token guessing: unknown tokens give 404; the body size differs only with the length of the token sent (two 43-character tokens: same size; `abc` and `xyz`: same size), so it does not reveal whether a token exists.
+  - Reported by me: IDOR (photographer B gets 404 on A's project and package), RLS pgTAP files and `anon_privileges` green, XSS strings in names, location and signature shown as text without execution, status trigger and `set_gallery_url` tests green.
+  - Scans: `npm audit --audit-level=high` no high or critical (7 moderate in the `@typescript-eslint` chain, dev only, accepted; `npm audit fix` not run); OSV-Scanner no issues in 533 packages; `gitleaks git` no leaks in 73 commits; lint clean; 151 Vitest tests green.
+  - `gitleaks dir .` reports 22 `generic-api-key` matches, all in `.env.local` and `.next/` (build output). Both are in `.gitignore`, never committed, not tracked. I did not open the matched values (output was redacted); the explanation for `.next/` (generated keys, public anon key inlined by Next.js) is an inference, not proven. CI scans the git history, not the directory.
+  - Known limits: the application code writes no logs (no `console.*`), but the token is part of the URL path, so a web server's own request log can contain it; the terminal output of `next start` during the tests was checked by me and showed no `/book/…` request lines (reported by me). A real host's access log was not checked and may contain the path. The README was not tested from a clean clone. `style-src-attr 'unsafe-inline'` is accepted (above). No service_role key; `.env.local` not read by the agent; only fictional data.
+- **Requirement changes:** a step table for Phase 8 was added to `docs/plan.md` (8.3 split into three steps; `frame-ancestors` moved from 8.2 to the CSP); the security checklist there is ticked except the two open items; new dev setting `CSP_ALLOW_HTTP`, described in the README.
