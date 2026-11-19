@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   const today = new Date();
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-10">
+    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-10">
       <AppNav active="projects" email={user.email} />
 
       <header className="flex items-center justify-between gap-4">
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
           No projects yet. Create your first one with “New project”.
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-3 lg:grid-cols-2">
           {projects.map((project) => (
             <li
               key={project.id}

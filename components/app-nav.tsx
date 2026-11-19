@@ -19,11 +19,11 @@ export function AppNav({
     }`;
 
   return (
-    <nav className="flex items-center justify-between gap-3 border-b border-border pb-4">
+    <nav className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-border pb-4">
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard"
-          className="text-lg font-semibold tracking-tight text-primary"
+          className="hidden text-lg font-semibold tracking-tight text-primary min-[420px]:inline"
         >
           Lensbook
         </Link>

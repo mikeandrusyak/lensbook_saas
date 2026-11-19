@@ -24,7 +24,7 @@ export default async function PackagesPage() {
   const packages = data ?? [];
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-4 py-10">
+    <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-4 py-10">
       <AppNav active="packages" email={user.email} />
 
       <header className="flex items-end justify-between gap-4">
@@ -47,7 +47,7 @@ export default async function PackagesPage() {
           No packages yet. Add one with “New package”.
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-3 lg:grid-cols-2">
           {packages.map((pkg) => (
             <li
               key={pkg.id}
