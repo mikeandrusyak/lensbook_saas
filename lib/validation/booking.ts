@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { galleryUrlSchema } from "./gallery";
 
 // The token comes from the URL (/book/[token]), so the visitor controls it.
 // Ours is 32 random bytes as base64url: always exactly 43 characters from [A-Za-z0-9_-].
@@ -31,6 +32,9 @@ export const bookingViewSchema = z.object({
   names: z.string(),
   event_date: z.string().nullable(),
   location: z.string().nullable(),
+  // null until Gallery Delivered (get_booking decides). The database allows only https,
+  // and it is checked again here, because this value becomes the href of a link.
+  gallery_url: galleryUrlSchema.nullable(),
   already_signed: z.boolean(),
   packages: z.array(
     z.object({

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  forwardButtonText,
   neighborStatus,
   PROJECT_STATUSES,
   statusBadgeClass,
@@ -56,5 +57,22 @@ describe("project status", () => {
     );
     const classes = PROJECT_STATUSES.map(statusBadgeClass);
     expect(new Set(classes).size).toBe(5);
+  });
+});
+
+describe("forwardButtonText", () => {
+  it('says "Deposit received" in Consultation, where the next step is Retainer Paid', () => {
+    expect(forwardButtonText("consultation")).toBe("Deposit received");
+  });
+
+  it('says "Next" for every other status', () => {
+    for (const status of [
+      "inquiry",
+      "retainer_paid",
+      "awaiting_event",
+      "gallery_delivered",
+    ] as const) {
+      expect(forwardButtonText(status)).toBe("Next");
+    }
   });
 });

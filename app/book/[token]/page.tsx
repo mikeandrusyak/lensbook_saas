@@ -55,6 +55,26 @@ export default async function BookingPage({
         </p>
       </header>
 
+      {/* Only in Gallery Delivered: get_booking returns null before that.
+          noreferrer: the gallery site must not learn this page's address, which
+          contains the token (the Referrer-Policy header says the same).
+          noopener: the new tab gets no handle back to this page. */}
+      {booking.gallery_url && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-lg font-semibold">Your gallery</h2>
+          <p>
+            <a
+              href={booking.gallery_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline"
+            >
+              Open your gallery
+            </a>
+          </p>
+        </section>
+      )}
+
       {booking.already_signed ? (
         <p>This booking is already signed. Thank you!</p>
       ) : booking.packages.length === 0 ? (

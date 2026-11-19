@@ -249,3 +249,33 @@
 - **Security:** `get_booking` and `submit_booking` are `security definer`, empty `search_path`, `execute` revoked from `public` and granted to `anon` and `authenticated` only; the token is hashed in the database and compared with `access_token_hash`, never stored or logged. An invalid, empty, oversized and unknown token give the same answer (`null` / `false`, the same 404 on the page). `get_booking` returns no email, gallery link, photographer id or project id; hidden packages and other photographers' packages are never offered. `submit_booking` checks the package belongs to the same photographer, is active, consent is given, the signature has 1–200 characters; a second call does not duplicate or overwrite (`unique(project_id)` and `on conflict do nothing`); it does not change the project status. `anon` cannot insert into `contracts` directly (`42501`, tested). A token replaced by "New link" stops working in both functions (pgTAP: `get_booking` test 11, `submit_booking` test 20), which closes the item carried over from step 4.8. A signature with HTML tags is stored as plain text (tested) and React escapes it on output. No `console.*` and no logging in `app`, `lib`, `components`; errors are generic; the token does not appear in `searchParams` or redirects. Only fictional data; no service_role key; `.env.local` not read; no new packages.
 - **Manual check (Done when):** all 7 points passed on 18.11.2026 (result reported by me; the agent could not run `curl` or the browser flow itself, the commands were denied). Points: (1) full flow in the browser: link → package → signature and consent → thank-you; a reload shows "already signed"; (2) a double click or a second submit leaves one row in `contracts`; (3) `/book/` + a random string and `/book/` + 43 random characters give the same 404; (4) after "New link" the old link gives 404; (5) a signature `<script>alert(1)</script>` is shown as text on `/projects/[id]`; (6) `curl -D -` on `/book/<43 characters>` shows the three headers, and `/login` does not; (7) the second account does not see the first account's project or booking.
 - **Requirement changes:** step 6.7 added to Phase 6 in `docs/plan.md` (photographer sees the signed booking); the thank-you page became an in-place message; the end-to-end check of the old token (step 4.8) is covered by pgTAP tests.
+
+---
+
+## Steps 7.1–7.7: deposit and gallery link (19.11.2026) — DRAFT
+
+- **Scenario and requirements:** Security (stored link, public output): the gallery link is a value a photographer types and the couple clicks, so only `https://` may be stored, and it must not leak before delivery. Complexity: one more rule in the status flow (`Gallery Delivered` needs a link). Know-how: `security invoker` with RLS doing the access check, check constraints as the single place for the value rules. Liability: the couple sees the link only after delivery.
+- **Prompts:** Plan mode; asked for "phase 7"; approved the steps one at a time; ran the pgTAP files and `db push` myself; asked what I must do by hand in phase 7; had the manual check run in the browser and then confirmed point 11 myself.
+- **What the agent did:**
+  - 7.1 `galleryUrlSchema` (https only, no credentials, max 2000), tests first.
+  - 7.2 `set_gallery_url(project_id, gallery_url)`: pgTAP test first (17 checks), then the migration; security invoker, empty `search_path`, execute only for `authenticated`; the value rules stay in the table checks.
+  - 7.3 gallery link field and `saveGalleryLink` action on `/projects/[id]`.
+  - 7.4 the Consultation forward step is labelled "Deposit received" (it sets `Retainer Paid`).
+  - 7.5 `get_booking` returns `gallery_url` only in `Gallery Delivered`, pgTAP checks first.
+  - 7.6 the booking page shows the link with `rel="noopener noreferrer"`.
+  - 7.7 manual check, plan table and this entry. No new packages.
+- **What I fixed or rejected:**
+  - Creating the booking link failed on `http://192.168.64.2:3000` but worked on `localhost`. The code does not depend on the address; the working guess is that `next dev` blocked dev resources from another origin, so the page was not hydrated. Fix: `allowedDevOrigins` for that address in `next.config.ts` (dev only). The cause was not proven separately; after the change the link was created.
+  - The agent first described `allowedDevOrigins` as something to re-check in production; wrong, it affects only `next dev`.
+  - Known limit: the browser `pattern` on the field blocks `http://` before the server, so the server checks were tested with the `pattern` removed.
+- **Security:** `set_gallery_url` is security invoker, so RLS decides which rows it sees; someone else's project and a missing project give the same error (`P0002`); `anon` cannot execute it (tested). Only `https://` is stored (check constraint `23514`: `http://`, `javascript:` and links with login and password are rejected); the link cannot be cleared in `Gallery Delivered` but can be replaced; setting it does not change the status. `get_booking` returns the link only in `Gallery Delivered`; the page opens it with `target="_blank"` and `rel="noopener noreferrer"`. No `console.*`, no link or token in logs or URL parameters. Only fictional data; no service_role key; `.env.local` not read; no new packages.
+- **Manual check (Done when):** passed on 19.11.2026 (browser steps reported by me; the DOM check of `rel` was done by script, not in DevTools). Two photographers (A and B), two couples:
+  1. A: project, link, couple signs on `/book/<token>`, Inquiry → Consultation → "Deposit received" → Retainer Paid → Awaiting Event.
+  2. Gallery Delivered without a link fails ("Could not change the status.").
+  3. `http://`, `https://user:pass@…` and `javascript:` are rejected by the server and nothing is stored; `https://…` is saved and the move to Gallery Delivered works.
+  4. `/book/<token>`: no link in Awaiting Event, exactly one link in Gallery Delivered.
+  5. In Gallery Delivered the link cannot be cleared, and can be replaced (checked by me).
+  6. B sees an empty list; `/projects/<id of A>` gives 404; the `saveGalleryLink` action replayed by B with A's project id fails and A's link is unchanged.
+  7. Second couple: own token, names, location and package, no link and no data of the first couple.
+  Open: the response headers of `/book/*` were not checked with `curl` in this run (only by the Vitest header test from step 6.6).
+- **Requirement changes:** a step table for Phase 7 was added to `docs/plan.md`; the dev-only `allowedDevOrigins` setting is noted there.

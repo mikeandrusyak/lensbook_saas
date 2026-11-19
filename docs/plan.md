@@ -314,6 +314,17 @@ Not a Must; kept small so the UI does not get a random look. Do it before the lo
 - **Done when:** resubmitting does not duplicate the record; an invalid token is indistinguishable from a non-existent one; a token replaced by "New link" (step 4.7) stops working (carried over from step 4.8); a name containing HTML tags is not executed.
 ### Phase 7. Deposit and gallery (Must 8, 9)
  
+| Step | Content | Status |
+| --- | --- | --- |
+| 7.1 | `galleryUrlSchema` (https only, no credentials, max 2000), test first | ✅ Done 19.11.2026 |
+| 7.2 | Test, then migration `set_gallery_url(project_id, gallery_url)` (security invoker) | ✅ Done 19.11.2026 |
+| 7.3 | Gallery link field and `saveGalleryLink` action on `/projects/[id]` | ✅ Done 19.11.2026 |
+| 7.4 | Label of the Consultation forward step: "Deposit received" | ✅ Done 19.11.2026 |
+| 7.5 | `get_booking` returns `gallery_url` only in `Gallery Delivered`, pgTAP checks first | ✅ Done 19.11.2026 |
+| 7.6 | Gallery link on `/book/[token]` with `rel="noopener noreferrer"` | ✅ Done 19.11.2026 |
+| 7.7 | Manual check of "Done when" with two photographers and two couples, protocol entry | ✅ Done 19.11.2026 (manual check passed, protocol entry drafted; "What I understood" is left for me) |
+
+- Dev only: `allowedDevOrigins` in `next.config.ts` for the VM address `192.168.64.2`; it has no effect on production.
 - A "Deposit received" button moves the project to `Retainer Paid`.
 - Gallery link field: `https://` only; `Gallery Delivered` is impossible without it.
 - The couple sees the link only in `Gallery Delivered`, with `rel="noopener noreferrer"`.

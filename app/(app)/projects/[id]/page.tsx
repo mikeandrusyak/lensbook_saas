@@ -5,6 +5,7 @@ import { projectIdSchema } from "@/lib/validation/project";
 import { AccessLink } from "./access-link";
 import { BookingSummary } from "./booking-summary";
 import { EditProjectForm } from "./edit-form";
+import { GalleryLink } from "./gallery-link";
 
 export default async function EditProjectPage({
   params,
@@ -31,10 +32,13 @@ export default async function EditProjectPage({
   // No photographer filter on purpose: RLS returns only the caller's own project.
   // Someone else's project and a missing one both give no row, hence the same 404.
   // The token hash is read only to know whether a link exists. It stays on the
-  // server: only a yes/no goes to the browser. No gallery link is selected.
+  // server: only a yes/no goes to the browser. The gallery link is shown only to the
+  // photographer who owns the project (RLS), in the field where they edit it.
   const { data, error } = await supabase
     .from("projects")
-    .select("event_date, location, access_token_hash, clients(names, email)")
+    .select(
+      "event_date, location, access_token_hash, gallery_url, clients(names, email)",
+    )
     .eq("id", projectId.data)
     .maybeSingle();
   const project = data;
@@ -65,6 +69,10 @@ export default async function EditProjectPage({
       <AccessLink
         projectId={projectId.data}
         hasLink={project.access_token_hash !== null}
+      />
+      <GalleryLink
+        projectId={projectId.data}
+        galleryUrl={project.gallery_url}
       />
       {contractError ? (
         // Generic text on purpose: the raw error message is not shown or logged.
