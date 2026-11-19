@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { galleryUrlSchema } from "./gallery";
+import { galleryUrlFieldSchema, galleryUrlSchema } from "./gallery";
 
 describe("galleryUrlSchema", () => {
   it("accepts an https link and trims spaces around it", () => {
@@ -27,7 +27,13 @@ describe("galleryUrlSchema", () => {
   });
 
   it("rejects empty values and text that is not a URL", () => {
-    for (const value of ["", "   ", "https://", "gallery", "https://exa mple.com"]) {
+    for (const value of [
+      "",
+      "   ",
+      "https://",
+      "gallery",
+      "https://exa mple.com",
+    ]) {
       expect(galleryUrlSchema.safeParse(value).success).toBe(false);
     }
   });
@@ -51,6 +57,31 @@ describe("galleryUrlSchema", () => {
   it("rejects values that are not strings", () => {
     for (const value of [null, undefined, 42]) {
       expect(galleryUrlSchema.safeParse(value).success).toBe(false);
+    }
+  });
+});
+
+// The form field: blank means "remove the link", anything else must be a valid link.
+describe("galleryUrlFieldSchema", () => {
+  it("turns a blank field into null", () => {
+    for (const value of ["", "   "]) {
+      expect(galleryUrlFieldSchema.parse(value)).toBeNull();
+    }
+  });
+
+  it("returns a valid link trimmed", () => {
+    expect(
+      galleryUrlFieldSchema.parse(" https://gallery.example.com/anna-and-ben "),
+    ).toBe("https://gallery.example.com/anna-and-ben");
+  });
+
+  it("rejects a link that is not https and a missing field", () => {
+    for (const value of [
+      "http://gallery.example.com",
+      "javascript:alert(1)",
+      null,
+    ]) {
+      expect(galleryUrlFieldSchema.safeParse(value).success).toBe(false);
     }
   });
 });

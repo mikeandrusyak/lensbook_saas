@@ -245,6 +245,10 @@ export type Database = {
         Returns: string
       }
       get_booking: { Args: { p_token: string }; Returns: Json }
+      set_gallery_url: {
+        Args: { p_gallery_url?: string; p_project_id: string }
+        Returns: undefined
+      }
       submit_booking: {
         Args: {
           p_consent: boolean

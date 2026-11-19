@@ -19,3 +19,14 @@ export const galleryUrlSchema = z
     // A user name or password in the link would be shown to the couple; refuse it.
     return url.hostname !== "" && url.username === "" && url.password === "";
   });
+
+// The "Gallery link" form field. A blank field means "remove the link" and becomes
+// null; anything else must pass galleryUrlSchema. A missing field (null) is an error.
+export const galleryUrlFieldSchema = z.union([
+  z
+    .string()
+    .trim()
+    .length(0)
+    .transform(() => null),
+  galleryUrlSchema,
+]);
