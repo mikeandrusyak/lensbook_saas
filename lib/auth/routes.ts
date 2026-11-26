@@ -2,7 +2,8 @@ export type Access = "allow" | "to-login" | "to-dashboard";
 
 // Default deny: every path needs a login unless it is listed here. A new page is
 // protected automatically, and forgetting to list it fails safe.
-const PUBLIC_EXACT = ["/"];
+// "/unavailable" is shown when Supabase does not answer, so it must never need a login.
+const PUBLIC_EXACT = ["/", "/unavailable"];
 // Only for visitors without a session: a logged-in user is sent to the dashboard.
 const AUTH_PAGES = ["/login", "/signup"];
 // Booking links are opened by clients, who have no account (token in the path).

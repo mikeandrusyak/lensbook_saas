@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { UnavailableNotice } from "@/components/unavailable-notice";
 import { createClient } from "@/lib/supabase/server";
 import {
   bookingTokenSchema,
@@ -28,12 +29,9 @@ export default async function BookingPage({
   const { data, error } = await supabase.rpc("get_booking", { p_token: token });
 
   if (error) {
-    // Generic text on purpose: the raw error message is not shown or logged.
-    return (
-      <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-4 px-4 py-10">
-        <p role="alert">Could not load this page. Please try again later.</p>
-      </main>
-    );
+    // The raw error message is not shown or logged. The usual cause is a paused
+    // database, so the client gets the contact for reactivating it.
+    return <UnavailableNotice />;
   }
 
   // null (unknown token) fails the schema, the same as any other wrong shape.

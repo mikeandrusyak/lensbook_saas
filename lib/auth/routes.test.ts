@@ -20,6 +20,11 @@ describe("decideAccess", () => {
     expect(decideAccess("/", true)).toBe("allow");
   });
 
+  it("lets everyone see the 'service unavailable' page", () => {
+    expect(decideAccess("/unavailable", false)).toBe("allow");
+    expect(decideAccess("/unavailable", true)).toBe("allow");
+  });
+
   it("lets an anonymous visitor open login and sign-up", () => {
     expect(decideAccess("/login", false)).toBe("allow");
     expect(decideAccess("/signup", false)).toBe("allow");
