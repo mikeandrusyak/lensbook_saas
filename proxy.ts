@@ -5,6 +5,9 @@ import { decideAccess } from "@/lib/auth/routes";
 import { buildCsp, CSP_HEADER } from "@/lib/security/csp";
 import { generateNonce } from "@/lib/security/nonce";
 import { getSupabaseEnv } from "@/lib/supabase/env";
+import { isServiceUnavailable, supabaseIsDown } from "@/lib/supabase/unavailable";
+
+const UNAVAILABLE_PATH = "/unavailable";
 
 // Runs before every matched request. Two jobs: refresh the session cookies (the
 // access token expires after an hour) and apply the access rules from decideAccess.
@@ -24,6 +27,10 @@ export async function proxy(request: NextRequest) {
   };
 
   let response = withCsp(NextResponse.next({ request }));
+
+  // The notice page needs no session, and asking Supabase here would be pointless
+  // while it is down.
+  if (request.nextUrl.pathname === UNAVAILABLE_PATH) return response;
 
   const { url, anonKey } = getSupabaseEnv();
   const supabase = createServerClient(url, anonKey, {
@@ -50,7 +57,24 @@ export async function proxy(request: NextRequest) {
   // getUser() verifies the token with the Auth server; getSession() would trust the cookie.
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+
+  // Supabase did not answer (e.g. the project is paused): show the notice instead of
+  // treating the visitor as logged out. A rewrite keeps the address in the browser,
+  // so a reload opens the real page once the database is active again.
+  // Without a session cookie getUser() asks nobody, so check the health endpoint then.
+  const down =
+    isServiceUnavailable(error) ||
+    (user === null && (await supabaseIsDown(url, anonKey)));
+  if (down) {
+    return withCsp(
+      NextResponse.rewrite(new URL(UNAVAILABLE_PATH, request.url), {
+        request,
+        status: 503,
+      }),
+    );
+  }
 
   const access = decideAccess(request.nextUrl.pathname, user !== null);
   if (access === "allow") return response;
